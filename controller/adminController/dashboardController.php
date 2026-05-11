@@ -2,13 +2,14 @@
 session_start();
 
 require_once '../../model/adminModel/dashboardModel.php';
+require_once '../../model/connection.php';
 
-$data = withoutDB();
+$conn = conn_open();
+$data = getDashboardData($conn);
+conn_close($conn);
 
-// store in session (temporary cache)
 $_SESSION['dashboard'] = $data;
 
-// redirect ONLY (no echo)
 header("Location: ../../views/admin/dashboard.php");
 exit();
 ?>

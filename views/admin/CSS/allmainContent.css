@@ -1,6 +1,7 @@
 .main_content {
     margin-left: 250px; 
     padding: 20px; 
+    background-color: #f4f4f4;
 }
 .sidebar {
     width: 200px;
