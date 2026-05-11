@@ -82,8 +82,5 @@ $sellers = $_SESSION['sellers'] ?? [];
         </table>
     </div>
     <script src="JS/sellers.js"></script>
-        <h1>Sellers Page</h1>
-        <p>This page will display information about the sellers in the e-commerce store.</p>
-    </div>
 </body>
 </html>
