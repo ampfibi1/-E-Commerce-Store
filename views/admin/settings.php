@@ -1,5 +1,7 @@
 <?php
+session_start();
 
+$sellers = $_SESSION['commission_sellers'] ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,12 +10,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings</title>
     <link rel="stylesheet" href="CSS/allmainContent.css">
+    <link rel="stylesheet" href="CSS/settings.css">
 </head>
 <body>
     <?php include 'sidebar.php'; ?>
     <div class="main_content" >
-        <h1>Settings Page</h1>
-        <p>This page will display the settings for the e-commerce store.</p>
+        <h1>Settings</h1>
+        <h2>Seller Commission Rates</h2>
+        <table>
+            <tr>
+                <th>Seller</th>
+                <th>Current Rate (%)</th>
+                <th>Update</th>
+            </tr>
+            <?php foreach ($sellers as $seller): ?>
+            <tr>
+                <td><?= htmlspecialchars($seller['name']) ?></td>
+                <td><?= $seller['commission_rate'] ?>%</td>
+                <td>
+                    <form action="../controller/adminController/settingsController.php" method="post">
+                        <input type="hidden" name="seller_id" value="<?= $seller['id'] ?>">
+                        <input type="number" step="0.01" name="commission_rate" value="<?= $seller['commission_rate'] ?>" required>
+                        <button type="submit" name="update_commission">Update</button>
+                    </form>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
     </div>
 </body>
 </html>
