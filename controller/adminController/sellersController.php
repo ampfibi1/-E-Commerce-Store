@@ -37,4 +37,6 @@ $_SESSION['sellers'] = $sellers;
 
 header("Location: ../../views/admin/sellers.php");
 exit();
+    header("Location: ../../views/admin/sellers.php");
+    exit();
 ?>
