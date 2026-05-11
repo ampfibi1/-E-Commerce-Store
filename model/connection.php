@@ -1,19 +1,17 @@
 <?php
-    function connectDB() { 
+    function conn_open() { 
        $host = "localhost";
-       $username = "your_username";
-       $password = "your_password";
-       $database = "your_database";
+       $username = "root";
+       $password = "";
+       $database = "ecommerce";
 
        $conn = new mysqli($host, $username, $password, $database);
 
-       if ($conn->connect_error) {
-           die("Connection failed: " . mysqli_connect_error());
-       }
+       if (!$conn) die("Connection failed: " . mysqli_connect_error());
        return $conn;
     }
 
-    function closeDB($conn) {
+    function conn_close($conn) {
         mysqli_close($conn);
     }
 ?>
