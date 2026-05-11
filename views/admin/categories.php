@@ -74,8 +74,8 @@ unset($_SESSION['error'], $_SESSION['editCat']);
         <?php foreach ($categories as $cat): ?>
         <tr>
             <td><?= $cat['id'] ?></td>
-            <td><?= htmlspecialchars($cat['name']) ?></td>
-            <td><?= htmlspecialchars($cat['description']) ?></td>
+            <td><?php echo $cat['name']; ?></td>
+            <td><?php echo $cat['description']; ?></td>
             <td><?= $cat['parent_name'] ?: 'Root' ?></td>
             <td>
                 <a href="../../controller/adminController/categoriesController.php?action=edit&id=<?= $cat['id'] ?>"
