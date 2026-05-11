@@ -17,6 +17,7 @@ $seller = $_SESSION['seller'] ?? '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products</title>
     <link rel="stylesheet" href="CSS/allmainContent.css">
+    <link rel="stylesheet" href="CSS/filter.css">
 </head>
 <body>
 
@@ -28,7 +29,6 @@ $seller = $_SESSION['seller'] ?? '';
     <div class="filters">
         <form action="../../controller/adminController/productsController.php" method="POST">
             <input type="text" id="search" name="search" placeholder="Search product name" value="<?= $search ?>">
-
             <select name="category">
                 <option value="">All Categories</option>
 
@@ -55,7 +55,7 @@ $seller = $_SESSION['seller'] ?? '';
                 <?php endforeach; ?>
             </select>
 
-            <button type="submit" name="filter">Filter</button>
+            <input type="submit" name="filter" value="Filter" class="btn">
             <br>
             <span id="suggestion_box"></span>
         </form>
