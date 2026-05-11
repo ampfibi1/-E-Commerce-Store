@@ -3,21 +3,11 @@ let actionLinks = document.querySelectorAll(".actionLink");
 for (let i = 0; i < actionLinks.length; i++) {
 
     actionLinks[i].onclick = function(event) {
-
         event.preventDefault();
-
         let id = this.getAttribute("data-id");
         let action = this.getAttribute("data-action");
 
         let xhttp = new XMLHttpRequest();
-
-        xhttp.open(
-            "GET",
-            "../../controller/adminController/sellersController.php?action="
-            + action + "&id=" + id,
-            true
-        );
-
         xhttp.onload = function() {
             let row = document.getElementById("sellerRow" + id);
             let statusCell = row.querySelector(".status");
@@ -33,7 +23,13 @@ for (let i = 0; i < actionLinks.length; i++) {
             else if (action === "reactivate") {
                 statusCell.innerHTML = "Approved";
             }
-        };
+        }; 
+        xhttp.open(
+            "GET",
+            "../../controller/adminController/sellersController.php?action="
+            + action + "&id=" + id,
+            true
+        );
         xhttp.send();
     };
 }
