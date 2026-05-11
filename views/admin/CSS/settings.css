@@ -1,0 +1,5 @@
+table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        form { display: inline; }
+        input { width: 60px; padding: 5px; }
+        button { padding: 5px 10px; background: #007bff; color: white; border: none; cursor: pointer; }

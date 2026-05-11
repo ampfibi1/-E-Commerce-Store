@@ -246,3 +246,31 @@ INSERT INTO order_items (order_id, product_id, seller_id, quantity, unit_price, 
 INSERT INTO announcements (title, content) VALUES
 ('Welcome to BD Marketplace', 'Discover quality Bangladesh-made products from top sellers like Tamjid and Mahin.'),
 ('Holiday Sale', 'Enjoy exclusive discounts on electronics and fashion throughout December.');
+
+--sample disputes values
+INSERT INTO disputes (
+    customer_id,
+    seller_id,
+    order_id,
+    description,
+    status,
+    admin_note
+)
+VALUES
+(
+    4,
+    1,
+    1,
+    'Received damaged Smart TV screen',
+    'open',
+    NULL
+),
+
+(
+    5,
+    2,
+    2,
+    'Seller delivered wrong shawl color',
+    'resolved',
+    'Refund processed successfully'
+);
