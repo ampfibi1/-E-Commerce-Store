@@ -1,0 +1,12 @@
+.stats { 
+    display: flex; 
+    gap: 20px; 
+}
+.stat {
+    background: white; 
+    padding: 20px; 
+    border-radius: 5px; 
+    flex: 1; 
+    text-align: center; 
+}
+    
