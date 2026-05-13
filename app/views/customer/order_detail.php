@@ -226,7 +226,7 @@ if ($current_idx === false) { $current_idx = -1; }
 
     function pollStatus() {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', '<?php echo BASE_URL; ?>../api/order_status.php?order_id=' + orderId, true);
+        xhr.open('GET', '<?php echo BASE_URL; ?>../ajax/order_status.php?order_id=' + orderId, true);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 try {

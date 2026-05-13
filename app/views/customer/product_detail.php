@@ -308,7 +308,7 @@ function nextImage() {
 /* Wishlist toggle */
 function toggleWishlistDetail(productId, btn) {
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '<?php echo BASE_URL; ?>api/wishlist_toggle.php', true);
+    xhr.open('POST', '<?php echo BASE_URL; ?>ajax/wishlist_toggle.php', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
@@ -333,7 +333,7 @@ function toggleWishlistDetail(productId, btn) {
 function deleteReview(reviewId) {
     if (!confirm('Are you sure you want to delete your review?')) { return; }
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '<?php echo BASE_URL; ?>api/review_delete.php', true);
+    xhr.open('POST', '<?php echo BASE_URL; ?>ajax/review_delete.php', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {

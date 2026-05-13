@@ -75,7 +75,7 @@ function submitReply(reviewId) {
     }
 
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '<?php echo BASE_URL; ?>../api/seller_reply.php', true);
+    xhr.open('POST', '<?php echo BASE_URL; ?>../ajax/seller_reply.php', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
