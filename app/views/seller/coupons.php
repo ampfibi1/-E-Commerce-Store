@@ -96,7 +96,7 @@ include APP . '/views/layouts/header.php';
             <!-- Valid Until -->
             <div class="form-group">
                 <label for="valid_until">Valid Until</label>
-                <input type="date" id="valid_until" name="valid_until" class="form-control"
+                <input type="text" id="valid_until" name="valid_until" class="form-control"
                        value="<?php echo sanitize(isset($old['valid_until']) ? $old['valid_until'] : ''); ?>">
                 <span class="err" id="err_valid_until">
                     <?php echo isset($errors['valid_until']) ? sanitize($errors['valid_until']) : ''; ?>
@@ -114,7 +114,7 @@ include APP . '/views/layouts/header.php';
 <script>
 function toggleCoupon(couponId) {
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '<?php echo BASE_URL; ?>../api/toggle_coupon.php', true);
+    xhr.open('POST', '<?php echo BASE_URL; ?>../ajax/toggle_coupon.php', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {

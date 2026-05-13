@@ -84,7 +84,7 @@ function removeFromWishlist(productId, btn) {
     var card = document.getElementById('wish-' + productId);
 
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '<?php echo BASE_URL; ?>../api/wishlist_toggle.php', true);
+    xhr.open('POST', '<?php echo BASE_URL; ?>../ajax/wishlist_toggle.php', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {

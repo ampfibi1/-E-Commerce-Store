@@ -234,7 +234,7 @@ function applyCoupon() {
     }
 
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '<?php echo BASE_URL; ?>../api/validate_coupon.php', true);
+    xhr.open('POST', '<?php echo BASE_URL; ?>../ajax/validate_coupon.php', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {

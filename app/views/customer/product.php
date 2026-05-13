@@ -37,7 +37,7 @@ include APP . '/views/layouts/header.php';
                 <form method="POST" action="<?php echo BASE_URL; ?>?c=customer&a=cart" style="display:flex;gap:6px;align-items:center;">
                     <input type="hidden" name="action" value="add">
                     <input type="hidden" name="product_id" value="<?php echo (int)$product['id']; ?>">
-                    <input type="number" name="qty" value="1" class="form-control" style="width:70px;">
+                    <input type="text" name="qty" value="1" class="form-control" style="width:70px;">
                     <button type="submit" class="btn btn-primary" <?php echo ((int)$product['stock_qty'] <= 0 || !(int)$product['is_available']) ? 'disabled' : ''; ?>>Add to Cart</button>
                 </form>
                 <button id="wishlistBtn"
@@ -111,7 +111,7 @@ if (wishlistBtn) {
         var pid = this.getAttribute('data-product');
         var self = this;
         var xhr1 = new XMLHttpRequest();
-        xhr1.open('POST', '<?php echo BASE_URL; ?>../api/wishlist_toggle.php', true);
+        xhr1.open('POST', '<?php echo BASE_URL; ?>../ajax/wishlist_toggle.php', true);
         xhr1.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr1.onreadystatechange = function() {
             if (xhr1.readyState === 4 && xhr1.status === 200) {
@@ -140,7 +140,7 @@ document.querySelectorAll('.delete-review-btn').forEach(function(btn) {
         var rid = this.getAttribute('data-review');
         var row = this.closest('div[style]');
         var xhr2 = new XMLHttpRequest();
-        xhr2.open('POST', '<?php echo BASE_URL; ?>../api/review_delete.php', true);
+        xhr2.open('POST', '<?php echo BASE_URL; ?>../ajax/review_delete.php', true);
         xhr2.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr2.onreadystatechange = function() {
             if (xhr2.readyState === 4 && xhr2.status === 200) {
