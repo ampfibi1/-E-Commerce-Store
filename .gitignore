@@ -1,0 +1,18 @@
+# User-uploaded content
+public/uploads/product_images/*
+public/uploads/profile_pics/*
+public/uploads/shop_logos/*
+!public/uploads/product_images/.gitkeep
+!public/uploads/profile_pics/.gitkeep
+!public/uploads/shop_logos/.gitkeep
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Logs
+*.log
