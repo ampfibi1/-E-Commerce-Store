@@ -1,11 +1,36 @@
 <?php $page_title = 'Login'; ?>
 <?php include APP . '/views/layouts/header.php'; ?>
 
-<div style="max-width:440px; margin:2.5rem auto;">
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title text-center">Sign In to ShopHub</h2>
-        </div>
+<div class="auth-shell">
+    <div class="auth-hero">
+        <h1>Welcome back to ShopHub</h1>
+        <p class="lead">
+            Sign in to track your orders, manage your wishlist, and pick up where you left off.
+            One account works for both shopping and selling.
+        </p>
+        <ul class="benefit-list">
+            <li>
+                <span class="bi"><?php icon_truck(20); ?></span>
+                <span><b>Fast delivery</b> — pick your zone at checkout and get an ETA upfront.</span>
+            </li>
+            <li>
+                <span class="bi"><?php icon_shield(20); ?></span>
+                <span><b>Buyer protection</b> — every order is covered with returns &amp; disputes.</span>
+            </li>
+            <li>
+                <span class="bi"><?php icon_tag(20); ?></span>
+                <span><b>Seller coupons</b> — apply codes at checkout and save instantly.</span>
+            </li>
+            <li>
+                <span class="bi"><?php icon_heart(20); ?></span>
+                <span><b>Wishlist anywhere</b> — save products to a list and find them later.</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="auth-form-wrap">
+        <h2>Sign in</h2>
+        <p class="sub">Use the email you registered with.</p>
 
         <?php if (!empty($errors) && is_array($errors) && isset($errors['general'])): ?>
         <div class="alert alert-danger"><?php echo sanitize($errors['general']); ?></div>
@@ -47,17 +72,14 @@
             <div class="form-group" style="margin-top:1.25rem;">
                 <button type="submit" class="btn btn-primary w-100">Sign In</button>
             </div>
-
         </form>
 
-        <hr class="divider">
-
-        <p class="text-center" style="font-size:0.92rem;">
+        <div class="auth-foot">
             Don't have an account?
             <a href="<?php echo BASE_URL; ?>?c=auth&a=register">Register as Customer</a>
-            &nbsp;|&nbsp;
-            <a href="<?php echo BASE_URL; ?>?c=auth&a=seller_register">Register as Seller</a>
-        </p>
+            &nbsp;·&nbsp;
+            <a href="<?php echo BASE_URL; ?>?c=auth&a=sellerRegister">Register as Seller</a>
+        </div>
     </div>
 </div>
 

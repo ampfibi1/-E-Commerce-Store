@@ -1,12 +1,36 @@
 <?php $page_title = 'Register as Seller'; ?>
 <?php include APP . '/views/layouts/header.php'; ?>
 
-<div style="max-width:580px; margin:2.5rem auto;">
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title text-center">Create Seller Account</h2>
-            <p class="text-center text-muted" style="font-size:0.88rem; margin:0.25rem 0 0;">Start selling on ShopHub</p>
-        </div>
+<div class="auth-shell">
+    <div class="auth-hero">
+        <h1>Start selling on ShopHub</h1>
+        <p class="lead">
+            Open your own mini-store on ShopHub. List products, run coupon campaigns,
+            and reach customers across the marketplace — no setup fees.
+        </p>
+        <ul class="benefit-list">
+            <li>
+                <span class="bi"><?php icon_shop(20); ?></span>
+                <span><b>Your own storefront</b> — name, logo, description, and your full product catalog.</span>
+            </li>
+            <li>
+                <span class="bi"><?php icon_tag(20); ?></span>
+                <span><b>Run promotions</b> — create coupon codes with discount % and expiry.</span>
+            </li>
+            <li>
+                <span class="bi"><?php icon_box(20); ?></span>
+                <span><b>Order management</b> — confirm, ship, and track every order from one dashboard.</span>
+            </li>
+            <li>
+                <span class="bi"><?php icon_shield(20); ?></span>
+                <span><b>Built-in analytics</b> — revenue, top products, and order volume at a glance.</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="auth-form-wrap">
+        <h2>Create seller account</h2>
+        <p class="sub">Submit for admin approval. You can sign in once approved.</p>
 
         <?php if (!empty($errors) && is_array($errors) && isset($errors['general'])): ?>
         <div class="alert alert-danger"><?php echo sanitize($errors['general']); ?></div>
@@ -14,7 +38,7 @@
 
         <form id="sellerRegForm"
               method="POST"
-              action="<?php echo BASE_URL; ?>?c=auth&a=seller_register"
+              action="<?php echo BASE_URL; ?>?c=auth&a=sellerRegister"
               enctype="multipart/form-data"
               novalidate
               onsubmit="return validateSellerRegisterForm()">
@@ -172,14 +196,12 @@
 
         </form>
 
-        <hr class="divider">
-
-        <p class="text-center" style="font-size:0.92rem;">
-            Already have an account? <a href="<?php echo BASE_URL; ?>?c=auth&a=login">Sign in</a>
-        </p>
-        <p class="text-center" style="font-size:0.92rem;">
-            Want to shop instead? <a href="<?php echo BASE_URL; ?>?c=auth&a=register">Register as Customer</a>
-        </p>
+        <div class="auth-foot">
+            Already have an account?
+            <a href="<?php echo BASE_URL; ?>?c=auth&a=login">Sign in</a>
+            &nbsp;·&nbsp;
+            <a href="<?php echo BASE_URL; ?>?c=auth&a=register">Register as Customer</a>
+        </div>
     </div>
 </div>
 
