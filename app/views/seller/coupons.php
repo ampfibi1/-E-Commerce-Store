@@ -3,12 +3,17 @@ $page_title = 'Manage Coupons';
 include APP . '/views/layouts/header.php';
 ?>
 
-<div class="seller-coupons">
-    <h1>Manage Coupons</h1>
+<div class="seller-coupons" style="max-width:1100px;margin:0 auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+        <div>
+            <h1 style="margin:0;">Manage Coupons</h1>
+            <p style="color:#6b7a99;margin:0.25rem 0 0;">Create promotional codes and toggle them on/off without reloading.</p>
+        </div>
+    </div>
 
     <!-- Coupons Table -->
     <?php if (!empty($coupons)): ?>
-    <div class="coupons-table-wrap">
+    <div style="background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);border:1px solid #e6ecf5;overflow:hidden;margin-bottom:2rem;">
         <table class="data-table">
             <thead>
                 <tr>
@@ -49,61 +54,65 @@ include APP . '/views/layouts/header.php';
         </table>
     </div>
     <?php else: ?>
-    <div class="empty-state">
-        <p>You have not created any coupons yet.</p>
+    <div class="empty-state" style="margin-bottom:2rem;">
+        <div class="empty-icon"><?php icon_tag(36); ?></div>
+        <h3>No coupons yet</h3>
+        <p>Create your first promotional code below.</p>
     </div>
     <?php endif; ?>
 
     <!-- Add Coupon Form -->
-    <div class="add-coupon-card">
+    <div class="form-card">
         <h2>Add New Coupon</h2>
+        <p class="form-card-sub">Create a promotional code customers can apply at checkout.</p>
 
         <form action="?c=seller&a=coupons" method="POST" novalidate id="couponForm"
               onsubmit="return validateCouponForm()">
 
             <input type="hidden" name="action" value="add_coupon">
 
-            <!-- Code -->
-            <div class="form-group">
-                <label for="code">Coupon Code</label>
-                <input type="text" id="code" name="code" class="form-control"
-                       value="<?php echo sanitize(isset($old['code']) ? $old['code'] : ''); ?>">
-                <span class="err" id="err_code">
-                    <?php echo isset($errors['code']) ? sanitize($errors['code']) : ''; ?>
-                </span>
+            <div class="form-grid">
+                <div class="form-group form-grid-full">
+                    <label for="code">Coupon Code</label>
+                    <input type="text" id="code" name="code" class="form-control"
+                           placeholder="e.g. SUMMER10"
+                           value="<?php echo sanitize(isset($old['code']) ? $old['code'] : ''); ?>">
+                    <span class="err" id="err_code">
+                        <?php echo isset($errors['code']) ? sanitize($errors['code']) : ''; ?>
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label for="discount_pct">Discount Percentage (%)</label>
+                    <input type="text" id="discount_pct" name="discount_pct" class="form-control"
+                           placeholder="e.g. 10"
+                           value="<?php echo sanitize(isset($old['discount_pct']) ? $old['discount_pct'] : ''); ?>">
+                    <span class="err" id="err_discount_pct">
+                        <?php echo isset($errors['discount_pct']) ? sanitize($errors['discount_pct']) : ''; ?>
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label for="max_uses">Max Uses <small style="color:#888;">(0 = unlimited)</small></label>
+                    <input type="text" id="max_uses" name="max_uses" class="form-control"
+                           value="<?php echo sanitize(isset($old['max_uses']) ? $old['max_uses'] : '0'); ?>">
+                    <span class="err" id="err_max_uses">
+                        <?php echo isset($errors['max_uses']) ? sanitize($errors['max_uses']) : ''; ?>
+                    </span>
+                </div>
+
+                <div class="form-group form-grid-full">
+                    <label for="valid_until">Valid Until</label>
+                    <input type="text" id="valid_until" name="valid_until" class="form-control"
+                           placeholder="YYYY-MM-DD HH:MM:SS"
+                           value="<?php echo sanitize(isset($old['valid_until']) ? $old['valid_until'] : ''); ?>">
+                    <span class="err" id="err_valid_until">
+                        <?php echo isset($errors['valid_until']) ? sanitize($errors['valid_until']) : ''; ?>
+                    </span>
+                </div>
             </div>
 
-            <!-- Discount Percentage -->
-            <div class="form-group">
-                <label for="discount_pct">Discount Percentage (%)</label>
-                <input type="text" id="discount_pct" name="discount_pct" class="form-control"
-                       value="<?php echo sanitize(isset($old['discount_pct']) ? $old['discount_pct'] : ''); ?>">
-                <span class="err" id="err_discount_pct">
-                    <?php echo isset($errors['discount_pct']) ? sanitize($errors['discount_pct']) : ''; ?>
-                </span>
-            </div>
-
-            <!-- Max Uses -->
-            <div class="form-group">
-                <label for="max_uses">Max Uses <small>(0 = unlimited)</small></label>
-                <input type="text" id="max_uses" name="max_uses" class="form-control"
-                       value="<?php echo sanitize(isset($old['max_uses']) ? $old['max_uses'] : '0'); ?>">
-                <span class="err" id="err_max_uses">
-                    <?php echo isset($errors['max_uses']) ? sanitize($errors['max_uses']) : ''; ?>
-                </span>
-            </div>
-
-            <!-- Valid Until -->
-            <div class="form-group">
-                <label for="valid_until">Valid Until</label>
-                <input type="text" id="valid_until" name="valid_until" class="form-control"
-                       value="<?php echo sanitize(isset($old['valid_until']) ? $old['valid_until'] : ''); ?>">
-                <span class="err" id="err_valid_until">
-                    <?php echo isset($errors['valid_until']) ? sanitize($errors['valid_until']) : ''; ?>
-                </span>
-            </div>
-
-            <div class="form-actions">
+            <div class="form-actions" style="margin-top:1.25rem;">
                 <button type="submit" class="btn btn-primary">Create Coupon</button>
             </div>
 
