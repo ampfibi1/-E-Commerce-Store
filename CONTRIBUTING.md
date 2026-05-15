@@ -1,346 +1,295 @@
-# Contributing to ShopHub (E-Commerce Store)
+# ShopHub — Team Integration Guide
 
-Group project for **P04 – E-Commerce Store**. This guide locks in the rules every
-collaborator must follow so our work merges cleanly and the assignment passes
-the rubric in `final_project.md`.
+> **Audience:** 3 group members building the E-Commerce Store final project.
+> **Status:** Living document. Open a PR if you want to change any rule.
+> **Last updated:** 2026-05-14
 
-> **Read `final_project.md` first.** That document is the assignment spec
-> (roles, required features, DB schema, technical requirements). This file is
-> the operational guide for *how* we work together.
+This document is the single source of truth for how the four roles plug into one working project. If your code doesn't follow what's here, it won't integrate.
 
 ---
 
-## 1. Team & Role Split
+## 1. Roles & owners
 
-The spec defines **four roles**. Each group member owns one or two of them and
-is solely responsible for their slice of the codebase, data, and demo.
+| Role | Owner | Branch prefix | Status |
+|---|---|---|---|
+| 1. Customer | **sakib2588** | `sakib/...` | ✅ Merged via PR #5 |
+| 2. Seller / Vendor | **sakib2588** | `sakib/...` | ✅ Merged via PR #5 |
+| 3. Delivery Manager | **TBD — please claim this** | `delivery/...` | ❌ Not started |
+| 4. Platform Admin | **ampfibi1** | `feature/...` | ✅ Merged via PR #6 |
 
-| Role | Files / Areas | Owner |
-|---|---|---|
-| Customer       | `app/controllers/CustomerController.php`, `app/views/customer/*` | sakib2588 |
-| Seller / Vendor | `app/controllers/SellerController.php`, `app/views/seller/*`     | sakib2588 |
-| Delivery Manager | `app/controllers/DeliveryController.php`, `app/views/delivery/*` *(to add)* | TBD |
-| Platform Admin   | `app/controllers/AdminController.php`, `app/views/admin/*` *(to add)*       | TBD |
-
-Per spec: **"DO NOT rely on any other group member for anything, including DB
-table creation, data insertion, session management."** Each member seeds their
-own demo data.
+> **One member has 2 roles (Customer + Seller). The other two each own 1 role.** Delivery Manager is currently unassigned — someone must take it for the project to be complete.
 
 ---
 
-## 2. Local Setup (XAMPP / LAMPP)
+## 2. Hard rules from `final_project.md` (non-negotiable)
 
-1. Clone into the web root:
-   ```bash
-   git clone git@github.com:ampfibi1/-E-Commerce-Store.git /opt/lampp/htdocs/ecommerce
-   ```
-2. Start Apache + MySQL from XAMPP.
-3. Import the schema (everyone uses the same schema):
-   ```bash
-   /opt/lampp/bin/mysql -u root < /opt/lampp/htdocs/ecommerce/database.sql
-   ```
-4. Open: `http://localhost/ecommerce/public/`
-5. Default dev DB config: `config/db.php` (host=localhost, user=root, pass=empty,
-   db=`ecommerce_db`). **Do not** commit real credentials.
+These come straight from the assignment spec. Breaking any of these will cost marks:
+
+1. **MVC pattern** — separate Models, Views, Controllers. No business logic in views.
+2. **PHP + MySQL** only.
+3. **`mysqli` with prepared statements** — NO raw string interpolation in SQL. ⚠️ The current `model/logModel.php` violates this (`SELECT ... WHERE email = '$email'`). Must be fixed before submission.
+4. **PHP sessions** with role-based access control on every protected page.
+5. **At least one AJAX feature per role**, using **`XMLHttpRequest`** and returning JSON from a PHP endpoint.
+6. **Server-side validation** on every form, with descriptive error messages.
+7. **Git workflow** — feature branches + PR for every major feature. No direct pushes to `main`.
+8. **Each member inserts ONLY the data needed to demo their own role.**
 
 ---
 
-## 3. Project Layout
+## 3. Project rules (team-agreed, in addition to the MD)
+
+These are team conventions — pick one approach and stick to it:
+
+1. **MVC structure:** `app/controllers/`, `app/models/`, `app/views/` (already used by Customer + Seller).
+2. **Front controller:** all requests go through `public/index.php?c=Controller&a=action`. No direct `*.php` file access.
+3. **No HTML5 validation attributes** (`required`, `pattern`, `minlength`, `type="email"`). All validation in JS + PHP only.
+4. **MySQLi procedural style** (`mysqli_prepare`, `mysqli_stmt_bind_param`) — not OOP MySQLi.
+5. **Password hashing** — `password_hash()` on register, `password_verify()` on login. Never store plaintext.
+6. **Single CSS file:** `public/css/style.css`. Don't fork per-role CSS files.
+7. **Icons:** use the inline SVG helpers in `app/views/layouts/icons.php`.
+
+---
+
+## 4. Architecture — how the 4 roles plug together
 
 ```
 ecommerce/
-├── ajax/             # AJAX endpoints — XMLHttpRequest targets, return JSON only
+├── public/
+│   ├── index.php           ← ONE front controller for the whole app
+│   ├── .htaccess
+│   ├── css/style.css       ← shared
+│   ├── js/
+│   │   ├── validation.js   ← legacy JS + XMLHttpRequest (MD-required)
+│   │   └── interactions.js ← modern vanilla JS (toasts, mobile nav)
+│   └── uploads/            ← user-uploaded files
 ├── app/
-│   ├── controllers/  # One class per role: <Role>Controller
-│   ├── models/       # Procedural functions: <entity>_<verb>($conn, ...)
-│   └── views/        # PHP templates rendered by controllers
-│       ├── auth/
-│       ├── customer/
-│       ├── seller/
-│       └── layouts/  # header.php / footer.php shared by all views
-├── config/db.php     # DB connection + global helpers
-├── public/           # WEB ROOT — only this directory is served
-│   ├── index.php     # Front controller / router
-│   ├── css/style.css # Single stylesheet — append-only
-│   ├── js/validation.js
-│   └── uploads/      # user content (gitignored)
-└── database.sql      # Schema for all 16 tables (per final_project.md)
+│   ├── controllers/
+│   │   ├── AuthController.php          (shared login/logout — sakib)
+│   │   ├── CustomerController.php      (sakib)
+│   │   ├── SellerController.php        (sakib)
+│   │   ├── AdminController.php         (ampfibi1 — to be ported)
+│   │   └── DeliveryController.php      (TBD)
+│   ├── models/             ← all model files live here, one class per file
+│   └── views/
+│       ├── layouts/        (header/footer/icons — shared)
+│       ├── auth/           (login, register — shared)
+│       ├── customer/       (sakib)
+│       ├── seller/         (sakib)
+│       ├── admin/          (ampfibi1)
+│       └── delivery/       (TBD)
+├── ajax/                   ← AJAX endpoints (one file per action)
+├── config/db.php           ← ONE database connection helper
+├── shema.sql               ← canonical schema (do not duplicate)
+├── migrations/             ← additive schema changes (numbered .sql files)
+└── seed_demo.sql           ← optional demo data
 ```
 
-**Web root = `public/`**, not the project root.
+> **Current problem to resolve:** the admin code is currently in `controller/` (top-level) and `views/admin/` (top-level), with its own `index.php` at the repo root. **ampfibi1 needs to port the admin files into `app/controllers/AdminController.php` + `app/views/admin/`** so we have ONE front controller. Two `index.php` files is not acceptable.
 
 ---
 
-## 4. Architecture Rules (Non-Negotiable)
+## 5. Database — single source of truth
 
-These come from `final_project.md` "Technical Requirements" plus the team's
-extra constraints. Breaking any of these = your PR gets bounced.
+- **Canonical schema:** `shema.sql` (lives at repo root, owned by the team — change via PR only).
+- **Database name:** `ecommerce` (NOT `ecommerce_db`, NOT `ecommerce_store`, etc.).
+- **Additive changes:** add a new file in `migrations/`, numbered sequentially (e.g. `002_add_xyz.sql`). Never edit `shema.sql` for new tables.
 
-| # | Rule |
-|---|---|
-| 1 | **MVC pattern.** Models, Views, Controllers are separate. No business logic in views — views only render `$data` passed by the controller. |
-| 2 | **PHP + MySQL** server-side only. No Node, no Python. |
-| 3 | **mysqli — procedural style only.** No OOP `$mysqli->query(...)`. Use `mysqli_prepare`, `mysqli_stmt_bind_param`, `mysqli_stmt_execute`, `mysqli_stmt_get_result`, `mysqli_stmt_close`. |
-| 4 | **Prepared statements always.** Zero raw string interpolation in SQL. Reviewers will reject any `"... WHERE id = $id"`. |
-| 5 | **PHP sessions** for auth. Every protected page calls `require_login()` / `require_role('customer'\|'seller'\|...)` *before* any output. Session keys: `uid`, `role`, `uname`, `sid` (seller id), `cart`. |
-| 6 | **AJAX uses `XMLHttpRequest`.** ❌ no `fetch()`, ❌ no `axios`, ❌ no jQuery `$.ajax`. Endpoint returns JSON via `echo json_encode(...)`. |
-| 7 | **Legacy JavaScript.** Use `var` only (no `let`/`const`). No arrow functions. No template literals. No `Promise`/`async`/`await`. ES5 only. |
-| 8 | **Semi-legacy PHP.** PHP 7-compatible style: `array(...)` literals OK, short arrays OK, but no PHP 8 features (no named args, no `match`, no enums, no readonly). |
-| 9 | **No HTML5 form validation. This is an order.** ❌ No `required`, no `type="email"`, no `type="tel"`, no `type="number"`, no `type="date"`, no `pattern=`, no `min=`, no `max=`, no `minlength=`, no `maxlength=`. **Use `<input type="text">` for everything textual.** Every form must carry the `novalidate` attribute. |
-| 10 | **Two validation layers, both required.** Client-side in `public/js/validation.js` (returns true/false from `onsubmit`). Server-side in the controller (builds an `$errors` array, re-renders the form with errors). |
-| 11 | **One AJAX feature per role minimum** (per spec). Already implemented for Customer + Seller — see `ajax/`. |
-| 12 | **No JS or CSS frameworks.** No Bootstrap, Tailwind, React, Vue, jQuery. Hand-rolled CSS in `public/css/style.css`. Hand-rolled JS in `public/js/validation.js` + inline `<script>` blocks at the bottom of views. |
+### Setup (every member runs this on their XAMPP):
 
----
-
-## 5. Routing
-
-Front controller: `public/index.php`. URLs:
-
-```
-?c=<controller>&a=<action>
-```
-
-Examples:
-- `?c=customer&a=products` → `CustomerController->products()`
-- `?c=seller&a=dashboard`  → `SellerController->dashboard()`
-- `?c=auth&a=login`        → `AuthController->login()`
-
-Add a page: add a method to the right controller class and a view at
-`app/views/<role>/<action>.php`.
-
----
-
-## 6. Code Patterns (Copy These Exactly)
-
-### Model function
-```php
-function user_get_by_id($conn, $id) {
-    $stmt = mysqli_prepare($conn, "SELECT * FROM users WHERE id = ? LIMIT 1");
-    mysqli_stmt_bind_param($stmt, "i", $id);
-    mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
-    $row = mysqli_fetch_assoc($res);
-    mysqli_stmt_close($stmt);
-    return $row;
-}
-```
-
-### Controller action
-```php
-public function profile() {
-    require_role('customer');
-    $uid    = (int)$_SESSION['uid'];
-    $errors = array();
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // ... validate POST, populate $errors ...
-        if (empty($errors)) {
-            // ... call model ...
-            set_flash('success', 'Profile updated.');
-            redirect(BASE_URL . '?c=customer&a=profile');
-        }
-    }
-    include APP . '/views/customer/profile.php';
-}
-```
-
-### View skeleton
-```php
-<?php $page_title = 'Page Title'; include APP . '/views/layouts/header.php'; ?>
-<section class="container">
-    <form method="POST" action="<?php echo BASE_URL; ?>?c=customer&a=foo"
-          id="fooForm" novalidate onsubmit="return validateFooForm()">
-        <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" id="name" name="name" class="form-control"
-                   value="<?php echo sanitize(isset($old['name']) ? $old['name'] : ''); ?>">
-            <span class="err" id="err_name">
-                <?php echo isset($errors['name']) ? sanitize($errors['name']) : ''; ?>
-            </span>
-        </div>
-        <button type="submit" class="btn btn-primary">Save</button>
-    </form>
-</section>
-<?php include APP . '/views/layouts/footer.php'; ?>
-```
-
-### AJAX endpoint (`ajax/<name>.php`)
-```php
-<?php
-session_start();
-header('Content-Type: application/json');
-require_once dirname(__DIR__) . '/config/db.php';
-require_once APP . '/models/XModel.php';
-
-if (!isset($_SESSION['uid']) || $_SESSION['role'] !== 'customer') {
-    echo json_encode(array('success' => false, 'message' => 'Login required.'));
-    exit;
-}
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(array('success' => false, 'message' => 'Method not allowed.'));
-    exit;
-}
-// ... validate input, call model, echo json_encode(...), exit;
-```
-
-### XMLHttpRequest from a view (legacy JS)
-```js
-<script>
-function toggleWishlist(productId) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', '<?php echo BASE_URL; ?>../ajax/wishlist_toggle.php', true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            var data = JSON.parse(xhr.responseText);
-            if (data.success) {
-                // update DOM
-            } else {
-                alert(data.message);
-            }
-        }
-    };
-    xhr.send('product_id=' + encodeURIComponent(productId));
-}
-</script>
-```
-
----
-
-## 7. UI / UX Rules
-
-### Brand
-- **Name:** ShopHub
-- **Primary:** `#2c7be5` (blue)
-- **Accent:**  `#e74c3c` (red)
-- **Background:** `#f5f7fa`
-
-### Stylesheet — one file, append-only
-- All CSS lives in `public/css/style.css`. **Do not create a second `.css` file.**
-- Add new rules **at the bottom**, under a labeled section:
-  ```css
-  /* --- Delivery Dashboard (added by <yourname>) ------------ */
-  .delivery-card { ... }
-  ```
-- **Do not rename or restyle** existing classes — others rely on them.
-
-### Reusable classes (use these, don't reinvent)
-| Class | Purpose |
-|---|---|
-| `.container`, `.main-wrap` | Page wrappers |
-| `.navbar`, `.nav-link`, `.nav-link.active` | Top nav |
-| `.btn`, `.btn-primary`, `.btn-secondary`, `.btn-danger` | Buttons |
-| `.card` | Bordered content panel |
-| `.flash-success`, `.flash-error`, `.flash-info`, `.flash-warning` | Flash messages — set via `set_flash($type, $msg)` |
-| `.form-group`, `.form-control`, `.err` | Form fields + inline error span |
-| `.table` | Data tables |
-| `.badge`, `.badge-success`, `.badge-danger` | Status pills |
-
-### Pages must use `header.php` + `footer.php`
-Every view starts with `include APP . '/views/layouts/header.php';` and ends
-with `include APP . '/views/layouts/footer.php';`. Don't render your own
-`<html>` / `<head>` / `<body>`.
-
-### Escape everything dynamic
-```php
-<?php echo sanitize($value); ?>
-```
-
----
-
-## 8. Database
-
-- **Single source of truth:** `database.sql` (16 tables, matches the spec in
-  `final_project.md`).
-- Schema changes must be:
-  1. Reflected in `database.sql` in the same PR.
-  2. Announced in the PR description — teammates must re-run the import.
-- Conventions:
-  - Tables and columns: `snake_case`.
-  - Primary key: `id INT AUTO_INCREMENT PRIMARY KEY`.
-  - Foreign keys: `<entity>_id` (`user_id`, `product_id`, `seller_id`).
-  - Timestamps: `created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`.
-
-### Per-member data isolation
-Per spec: each group member inserts only the data needed to demonstrate their
-own role. Don't pollute another member's tables with test data.
-
----
-
-## 9. Git Workflow
-
-### Identity
-Each member configures their **own** git identity locally before committing:
 ```bash
-git config user.name  "<your-github-username>"
-git config user.email "<your-github-email>"
+# 1. Drop any existing DB you created with the wrong name
+mysql -u root -e "DROP DATABASE IF EXISTS ecommerce; DROP DATABASE IF EXISTS ecommerce_db;"
+
+# 2. Import the canonical schema
+mysql -u root < shema.sql
+
+# 3. Apply migrations in order
+mysql -u root ecommerce < migrations/001_add_customer_addresses.sql
+# ...future migrations apply here
+
+# 4. (Optional) Seed demo data for testing
+mysql -u root ecommerce < seed_demo.sql
 ```
 
-### Branch naming
+After setup, `config/db.php` should connect successfully with:
+```php
+DB_HOST = localhost  |  DB_USER = root  |  DB_PASS = ''  |  DB_NAME = ecommerce
 ```
-<your-handle>/<feature-or-fix-slug>
-```
-Examples: `sakib/cart-ajax-flow`, `<teammate>/delivery-zones-crud`.
-
-### Rules
-1. **Never push directly to `main`.** Per spec: "Do not push to main/master
-   branch directly. Create feature branches and submit a Pull Request for each
-   major feature."
-2. **Never force-push** any shared branch.
-3. **Pull before every session:** `git pull --ff-only origin main`.
-4. **Small, scoped PRs.** One feature per branch.
-5. **Append in shared files** (`style.css`, `database.sql`, `header.php` nav)
-   rather than inserting in the middle — this is the #1 source of merge
-   conflicts in this project.
-6. When `main` advances while your branch is open, **merge** (don't rebase):
-   ```bash
-   git fetch origin
-   git merge origin/main
-   # resolve conflicts -> commit -> push
-   ```
-
-### PR checklist (paste into every PR description)
-- [ ] Cloned fresh in a clean XAMPP install and tested locally
-- [ ] No `fetch()`; all AJAX uses `XMLHttpRequest`
-- [ ] No HTML5 validation attributes (`required`, `type="email"`, `pattern`, etc.); all forms have `novalidate`
-- [ ] Both JS (`validation.js`) and PHP (controller) validation present for every user-input form
-- [ ] All DB calls use `mysqli_prepare` + `bind_param`
-- [ ] Session/role check at the top of every protected action
-- [ ] No new CSS files / no inline `style="..."` (use existing classes)
-- [ ] No JS/CSS framework added
-- [ ] If schema changed, `database.sql` updated and teammates notified
-- [ ] No secrets, no `*.env`, no large binaries
 
 ---
 
-## 10. What NOT to Do
+## 6. Session conventions (agreed keys)
 
-- ❌ `fetch()`, `axios`, `jQuery.ajax`
-- ❌ HTML5 validation attributes (this is an order)
-- ❌ ES6+ JS (`let`, `const`, `=>`, template literals, `Promise`, `async`/`await`)
-- ❌ PHP 8 features (`match`, named args, enums, readonly, `str_contains`)
-- ❌ OOP mysqli (`$mysqli->query(...)`) — use procedural only
-- ❌ Raw SQL string interpolation
-- ❌ React, Vue, Bootstrap, Tailwind, jQuery
-- ❌ New CSS files or inline styles
-- ❌ Renaming existing CSS classes, model functions, or controller methods
-- ❌ Force-pushing or pushing to `main`
-- ❌ Inserting your own demo data into another member's tables
+All four roles must use the SAME session keys. Mixed naming will break shared header/role checks.
+
+| Key | Type | Set when | Used for |
+|---|---|---|---|
+| `$_SESSION['uid']` | int | login | user.id |
+| `$_SESSION['uname']` | string | login | user.name (for greeting) |
+| `$_SESSION['role']` | string | login | one of: `customer`, `seller`, `delivery_manager`, `admin` |
+| `$_SESSION['sid']` | int | login (sellers only) | sellers.id (the row in `sellers`, not users) |
+| `$_SESSION['flash']` | array | one-time message | `['type' => 'success', 'msg' => '...']` |
+| `$_SESSION['cart']` | array | customer adds to cart | `[product_id => qty, ...]` |
+
+> ⚠️ The current admin code uses `user_id` / `user_name` / `user_role`. **ampfibi1 must rename these to `uid` / `uname` / `role`** when porting to `AdminController`.
+
+### Helpers in `config/db.php` (use these, don't roll your own):
+
+- `require_login()` — redirects to login if no session.
+- `require_role('admin')` — redirects if user is not that role.
+- `require_seller_approved($conn)` — blocks unapproved sellers.
+- `set_flash('success', '...')` / `get_flash()` — one-time toast messages.
+- `sanitize($str)` — `htmlspecialchars` wrapper for output.
+- `redirect($url)` — header + exit.
 
 ---
 
-## 11. Submission Gate (from spec)
+## 7. URL convention (front controller routing)
 
-Before submitting, every member confirms:
-- [ ] Role pages individually accessible with own login and dashboard
+```
+BASE_URL/public/?c=<controller>&a=<action>[&extra=...]
+
+Customer routes:        ?c=customer&a=products
+Seller routes:          ?c=seller&a=dashboard
+Admin routes:           ?c=admin&a=dashboard
+Delivery routes:        ?c=delivery&a=dashboard
+Auth (shared):          ?c=auth&a=login | register | sellerRegister | logout
+```
+
+> Method names use **camelCase** (`sellerRegister`, not `seller_register`). The router strips non-alphanumerics so URL params must match the PHP method name exactly.
+
+---
+
+## 8. AJAX endpoints
+
+Each role must have **at least one** AJAX feature using `XMLHttpRequest` and returning JSON.
+
+### Convention:
+- File location: `ajax/<role>_<action>.php`
+- Must `session_start()`, check auth, return `header('Content-Type: application/json')`, then `echo json_encode([...])`.
+- Use `mysqli_prepare` for any DB query (same rule as everywhere).
+
+### Existing examples (Customer + Seller — copy this style):
+
+| File | Role | Purpose |
+|---|---|---|
+| `ajax/cart_action.php` | Customer | Add/remove/update cart items |
+| `ajax/wishlist_toggle.php` | Customer | Heart icon on product cards |
+| `ajax/validate_coupon.php` | Customer | Apply coupon at checkout |
+| `ajax/order_status.php` | Customer | Poll order status badge |
+| `ajax/toggle_coupon.php` | Seller | Activate/deactivate coupons |
+| `ajax/seller_reply.php` | Seller | Reply to reviews |
+| `ajax/review_delete.php` | Customer | Delete own review |
+
+### Admin & Delivery — must add at least one each:
+
+Suggestions:
+- **Admin:** AJAX search suggestion as you type in user/product search.
+- **Delivery:** AJAX agent assignment dropdown (load available agents for a given zone).
+
+---
+
+## 9. Validation
+
+### JS validation — `public/js/validation.js` (legacy style)
+- Uses `var`, `XMLHttpRequest`, no arrow functions.
+- One function per form, named `validate<FormName>Form()`.
+- Add `onsubmit="return validateXForm()"` to every `<form>`.
+
+### PHP validation — in the controller, before any DB call
+- Use `$errors = array();` to collect.
+- `trim()` every input.
+- Use `filter_var($email, FILTER_VALIDATE_EMAIL)`, `strlen()` for length, `is_numeric()` for numbers.
+- If `!empty($errors)`, re-render the form with `$errors` and `$old` (so user input isn't lost).
+
+---
+
+## 10. Per-role feature checklists
+
+### Role 1 — Customer (sakib2588) ✅ Done
+- [x] Register / Login / Logout
+- [x] Profile + saved addresses
+- [x] Browse, search, filter products
+- [x] Cart (session-based)
+- [x] Coupon validation (AJAX)
+- [x] Checkout + place order
+- [x] Order status tracking (AJAX polling)
+- [x] Order history, return requests
+- [x] Reviews (1–5 stars + text)
+- [x] Wishlist
+- [x] Submit + view disputes
+
+### Role 2 — Seller / Vendor (sakib2588) ✅ Done
+- [x] Seller registration (with admin approval flow)
+- [x] Shop profile management
+- [x] Product CRUD + multi-image upload
+- [x] Stock management + low-stock alerts
+- [x] Coupon creation + toggle (AJAX)
+- [x] Order management (filter by status)
+- [x] Confirm/ship order items
+- [x] Return request approve/reject
+- [x] Reply to reviews (AJAX)
+- [x] Sales analytics dashboard
+
+### Role 3 — Delivery Manager (TBD) ❌ Not started
+- [ ] Login + logistics dashboard
+- [ ] Manage delivery agents (CRUD)
+- [ ] Manage delivery zones (CRUD)
+- [ ] View ready-for-dispatch orders
+- [ ] Assign agent to order
+- [ ] Update delivery status (Picked Up → In Transit → Delivered/Failed)
+- [ ] Failed delivery re-assignment
+- [ ] Delivery history
+- [ ] Agent performance report
+- [ ] Zone performance report
+- [ ] Daily/weekly delivery summary
+- [ ] **AJAX:** at least one feature using `XMLHttpRequest`
+
+### Role 4 — Platform Admin (ampfibi1)
+- [x] Admin dashboard
+- [x] Seller approval
+- [x] Category management
+- [x] User management
+- [x] Product oversight
+- [x] Order oversight
+- [x] Dispute handling
+- [x] Commission rates
+- [x] Platform coupons
+- [x] Analytics
+- [x] Announcements
+- [ ] **🔴 SQL injection in `model/logModel.php` — FIX BEFORE SUBMISSION**
+- [ ] **🔴 Port from `controller/` flat structure to `app/controllers/AdminController.php` MVC**
+- [ ] **🔴 Use `password_verify()` not plaintext comparison**
+- [ ] **🔴 Match session keys: `uid` / `uname` / `role` (not `user_id` etc.)**
+- [ ] AJAX feature (search suggestion already partial — confirm it works end-to-end)
+
+---
+
+## 11. Submission checklist (from MD, line 187–195)
+
+Before pushing `development` → `main`:
+
+- [ ] Each role individually accessible via its own login + dashboard
 - [ ] Role-based access control prevents cross-role access
-- [ ] Shared DB schema implemented consistently
-- [ ] At least one AJAX feature per role
-- [ ] All forms have server-side validation with descriptive error messages
-- [ ] Git history shows feature branches and PRs for major features
-- [ ] Hardcopy report describes all features for your assigned role
+- [ ] Shared database schema imports cleanly on a fresh XAMPP
+- [ ] At least one AJAX feature per role works
+- [ ] All forms have server-side validation with clear errors
+- [ ] Git history shows feature branches + PRs (no direct pushes)
+- [ ] Hardcopy report per role (each member writes their own)
+- [ ] `README.md` updated with setup steps + role list
 
 ---
 
-Questions, design proposals, or rule clarifications: open a **draft PR** and tag
-the team. Decisions are recorded in PR threads, not in DMs.
+## 12. Who to ping for what
+
+| Question | Who |
+|---|---|
+| Customer or Seller code | sakib2588 |
+| Admin code | ampfibi1 |
+| Delivery code | (whoever claims Role 3) |
+| Schema changes | open a PR adding to `migrations/` |
+| Git / merge conflict help | discuss in the group chat first |
+
+---
+
+**Last reminder:** the project is a SHARED submission. One person's broken code = everyone's lower grade. Test your code on a fresh DB import before you ship it.
