@@ -75,10 +75,21 @@
         </form>
 
         <div class="auth-foot">
-            Don't have an account?
-            <a href="<?php echo BASE_URL; ?>?c=auth&a=register">Register as Customer</a>
-            &nbsp;·&nbsp;
-            <a href="<?php echo BASE_URL; ?>?c=auth&a=sellerRegister">Register as Seller</a>
+            <p style="color:#6b7a99;font-size:0.88rem;margin:0 0 0.75rem;">Don't have an account?</p>
+            <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+                <a href="<?php echo BASE_URL; ?>?c=auth&a=register"
+                   style="flex:1;min-width:130px;text-align:center;padding:0.5rem 1rem;border:1.5px solid #2c7be5;color:#2c7be5;border-radius:8px;font-weight:600;font-size:0.88rem;text-decoration:none;transition:all 0.15s;"
+                   onmouseover="this.style.background='#2c7be5';this.style.color='#fff';"
+                   onmouseout="this.style.background='';this.style.color='#2c7be5';">
+                    Customer Account
+                </a>
+                <a href="<?php echo BASE_URL; ?>?c=auth&a=sellerRegister"
+                   style="flex:1;min-width:130px;text-align:center;padding:0.5rem 1rem;border:1.5px solid #28a745;color:#28a745;border-radius:8px;font-weight:600;font-size:0.88rem;text-decoration:none;transition:all 0.15s;"
+                   onmouseover="this.style.background='#28a745';this.style.color='#fff';"
+                   onmouseout="this.style.background='';this.style.color='#28a745';">
+                    Seller Account
+                </a>
+            </div>
         </div>
     </div>
 </div>

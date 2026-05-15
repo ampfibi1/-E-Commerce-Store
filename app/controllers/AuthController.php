@@ -59,7 +59,11 @@ class AuthController {
                     } elseif ($user['role'] === 'seller') {
                         redirect(BASE_URL . '?c=seller&a=dashboard');
                     } elseif ($user['role'] === 'admin') {
-                        redirect(BASE_URL . '?c=admin&a=dashboard');
+                        // Set flat-admin session keys so the admin panel recognises this session
+                        $_SESSION['user_id']   = $user['id'];
+                        $_SESSION['user_name'] = $user['name'];
+                        $_SESSION['user_role'] = 'admin';
+                        redirect(str_replace('public/', '', BASE_URL));
                     } else {
                         redirect(BASE_URL);
                     }
