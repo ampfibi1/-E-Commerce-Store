@@ -16,6 +16,18 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Customer saved addresses
+CREATE TABLE customer_addresses (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id     INT             NOT NULL,
+    label           VARCHAR(100)    DEFAULT NULL,
+    address_line    TEXT            NOT NULL,
+    city            VARCHAR(100)    NOT NULL,
+    zip             VARCHAR(20)     DEFAULT NULL,
+    is_default      TINYINT(1)      NOT NULL DEFAULT 0,
+    FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- Sellers table
 CREATE TABLE sellers (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -81,14 +93,17 @@ CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     customer_id INT NOT NULL,
     shipping_address TEXT,
+    zone_id INT NULL,
     payment_method VARCHAR(50),
     subtotal DECIMAL(10,2),
     discount_amount DECIMAL(10,2) DEFAULT 0,
+    delivery_fee DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     total_amount DECIMAL(10,2) NOT NULL,
     status ENUM('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned') DEFAULT 'pending',
     coupon_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES users(id),
+    FOREIGN KEY (zone_id) REFERENCES delivery_zones(id) ON DELETE SET NULL,
     FOREIGN KEY (coupon_id) REFERENCES coupons(id)
 );
 
