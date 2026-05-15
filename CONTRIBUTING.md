@@ -90,26 +90,41 @@ ecommerce/
 
 ## 5. Database — single source of truth
 
-- **Canonical schema:** `shema.sql` (lives at repo root, owned by the team — change via PR only).
+- **Canonical schema:** `shema.sql` (original team schema, do not modify directly).
+- **Updated schema:** `shema2.0.sql` (includes Customer/Seller additions — use this for fresh setups).
 - **Database name:** `ecommerce` (NOT `ecommerce_db`, NOT `ecommerce_store`, etc.).
-- **Additive changes:** add a new file in `migrations/`, numbered sequentially (e.g. `002_add_xyz.sql`). Never edit `shema.sql` for new tables.
+- **Additive changes:** add a new file in `migrations/`, numbered sequentially (e.g. `003_add_xyz.sql`).
 
-### Setup (every member runs this on their XAMPP):
+### Fresh setup (no existing database):
 
 ```bash
-# 1. Drop any existing DB you created with the wrong name
+# Drop any old DB with the wrong name
 mysql -u root -e "DROP DATABASE IF EXISTS ecommerce; DROP DATABASE IF EXISTS ecommerce_db;"
 
-# 2. Import the canonical schema
-mysql -u root < shema.sql
+# Import the updated schema — one command, everything included
+mysql -u root < shema2.0.sql
 
-# 3. Apply migrations in order
-mysql -u root ecommerce < migrations/001_add_customer_addresses.sql
-# ...future migrations apply here
-
-# 4. (Optional) Seed demo data for testing
+# Optional: seed demo products and users for testing
 mysql -u root ecommerce < seed_demo.sql
 ```
+
+### Manual migration helper (already have the database):
+
+If you already imported `shema.sql` and just need to apply the new columns/tables, run only the migrations that are missing from your database:
+
+```bash
+# Check which tables you already have
+mysql -u root ecommerce -e "SHOW TABLES;"
+mysql -u root ecommerce -e "SHOW COLUMNS FROM orders;"
+
+# Migration 001 — adds customer_addresses table (Customer address book feature)
+mysql -u root ecommerce < migrations/001_add_customer_addresses.sql
+
+# Migration 002 — adds zone_id + delivery_fee to orders (Customer checkout feature)
+mysql -u root ecommerce < migrations/002_add_zone_delivery_fee_to_orders.sql
+```
+
+All migration files use `CREATE TABLE IF NOT EXISTS` or `ALTER TABLE ADD COLUMN IF NOT EXISTS` so they are **safe to run even if partially applied** — they will not error if the column already exists.
 
 After setup, `config/db.php` should connect successfully with:
 ```php

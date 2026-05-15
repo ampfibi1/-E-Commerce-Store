@@ -28,10 +28,10 @@
             <div class="foot-col">
                 <h4>Support</h4>
                 <ul>
-                    <li><a href="<?php echo BASE_URL; ?>?c=customer&a=disputes">Open a dispute</a></li>
-                    <li><a href="#">Help center</a></li>
-                    <li><a href="#">Contact us</a></li>
-                    <li><a href="#">Terms &amp; privacy</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>?c=info&a=disputes">Open a dispute</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>?c=info&a=help">Help center</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>?c=info&a=contact">Contact us</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>?c=info&a=terms">Terms &amp; privacy</a></li>
                 </ul>
             </div>
         </div>

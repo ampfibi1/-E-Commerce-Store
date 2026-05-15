@@ -36,3 +36,38 @@ function dispute_create($conn, $data) {
     mysqli_stmt_close($stmt);
     return $id;
 }
+
+function dispute_get_one_for_seller($conn, $id, $seller_id) {
+    $stmt = mysqli_prepare($conn,
+        "SELECT d.*, u.name AS customer_name, u.email AS customer_email,
+                o.total_amount, o.created_at AS order_date, o.shipping_address
+         FROM disputes d
+         JOIN users u ON d.customer_id = u.id
+         JOIN orders o ON d.order_id = o.id
+         WHERE d.id = ? AND d.seller_id = ?
+         LIMIT 1"
+    );
+    mysqli_stmt_bind_param($stmt, 'ii', $id, $seller_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row    = mysqli_fetch_assoc($result);
+    mysqli_stmt_close($stmt);
+    return $row;
+}
+
+function dispute_get_by_seller($conn, $seller_id) {
+    $stmt = mysqli_prepare($conn,
+        "SELECT d.*, u.name AS customer_name
+         FROM disputes d
+         JOIN users u ON d.customer_id = u.id
+         WHERE d.seller_id = ?
+         ORDER BY d.created_at DESC"
+    );
+    mysqli_stmt_bind_param($stmt, 'i', $seller_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($result)) $rows[] = $row;
+    mysqli_stmt_close($stmt);
+    return $rows;
+}

@@ -26,8 +26,23 @@ class SellerController {
             }
         }
 
-        $low_stock = product_get_low_stock($this->conn, $sid, 5);
-        $earnings  = analytics_earnings($this->conn, $sid, 'day');
+        $low_stock     = product_get_low_stock($this->conn, $sid, 5);
+        $earnings      = analytics_earnings($this->conn, $sid, 'day');
+        $all_returns   = return_get_by_seller($this->conn, $sid);
+        $return_count  = 0;
+        foreach ($all_returns as $r) {
+            if ($r['status'] === 'pending') $return_count++;
+        }
+        $all_reviews  = review_get_by_seller($this->conn, $sid);
+        $review_count = 0;
+        foreach ($all_reviews as $rv) {
+            if (empty($rv['seller_reply'])) $review_count++;
+        }
+        $all_disputes   = dispute_get_by_seller($this->conn, $sid);
+        $dispute_count  = 0;
+        foreach ($all_disputes as $d) {
+            if ($d['status'] === 'open') $dispute_count++;
+        }
 
         include APP . '/views/seller/dashboard.php';
     }
@@ -652,5 +667,31 @@ class SellerController {
 
         $returns = return_get_by_seller($this->conn, $sid);
         include APP . '/views/seller/returns.php';
+    }
+
+    public function disputes() {
+        require_seller_approved($this->conn);
+        $sid      = (int)$_SESSION['sid'];
+        $disputes = dispute_get_by_seller($this->conn, $sid);
+        include APP . '/views/seller/disputes.php';
+    }
+
+    public function disputeDetail() {
+        require_seller_approved($this->conn);
+        $sid = (int)$_SESSION['sid'];
+        $id  = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+        if ($id <= 0) {
+            set_flash('error', 'Invalid dispute id.');
+            redirect(BASE_URL . '?c=seller&a=disputes');
+        }
+
+        $dispute = dispute_get_one_for_seller($this->conn, $id, $sid);
+        if (!$dispute) {
+            set_flash('error', 'Dispute not found or not yours.');
+            redirect(BASE_URL . '?c=seller&a=disputes');
+        }
+
+        include APP . '/views/seller/dispute_detail.php';
     }
 }

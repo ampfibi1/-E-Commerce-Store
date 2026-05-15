@@ -81,25 +81,26 @@ include APP . '/views/layouts/header.php';
     </div>
     <?php endif; ?>
 
-    <!-- Quick Actions -->
+    <!-- Needs Attention -->
     <div class="dashboard-section">
-        <h2>Quick Actions</h2>
-        <div class="quick-actions">
-            <a href="?c=seller&a=addProduct" class="quick-action-card">
-                <span class="qa-icon">&#10133;</span>
-                <span>Add Product</span>
+        <h2>Needs Your Attention</h2>
+        <p style="color:#6b7a99;font-size:0.9rem;margin:-0.25rem 0 1rem;">Items waiting for action from you.</p>
+        <div class="attention-grid">
+            <a href="<?php echo BASE_URL; ?>?c=seller&a=orders" class="attention-card <?php echo $pending_count > 0 ? 'attention-alert' : 'attention-ok'; ?>">
+                <div class="attention-count"><?php echo $pending_count; ?></div>
+                <div class="attention-label">Pending Orders</div>
             </a>
-            <a href="?c=seller&a=orders" class="quick-action-card">
-                <span class="qa-icon">&#128220;</span>
-                <span>View Orders</span>
+            <a href="<?php echo BASE_URL; ?>?c=seller&a=returns" class="attention-card <?php echo $return_count > 0 ? 'attention-alert' : 'attention-ok'; ?>">
+                <div class="attention-count"><?php echo $return_count; ?></div>
+                <div class="attention-label">Return Requests</div>
             </a>
-            <a href="?c=seller&a=coupons" class="quick-action-card">
-                <span class="qa-icon">&#127991;</span>
-                <span>Manage Coupons</span>
+            <a href="<?php echo BASE_URL; ?>?c=seller&a=reviews" class="attention-card <?php echo $review_count > 0 ? 'attention-warn' : 'attention-ok'; ?>">
+                <div class="attention-count"><?php echo $review_count; ?></div>
+                <div class="attention-label">Unanswered Reviews</div>
             </a>
-            <a href="?c=seller&a=analytics" class="quick-action-card">
-                <span class="qa-icon">&#128200;</span>
-                <span>Analytics</span>
+            <a href="<?php echo BASE_URL; ?>?c=seller&a=disputes" class="attention-card <?php echo $dispute_count > 0 ? 'attention-alert' : 'attention-ok'; ?>">
+                <div class="attention-count"><?php echo $dispute_count; ?></div>
+                <div class="attention-label">Open Disputes</div>
             </a>
         </div>
     </div>
