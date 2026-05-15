@@ -204,37 +204,7 @@ Suggestions:
 
 ---
 
-## 10. Git workflow
-
-### Branches
-- `main` — submission-ready. Touch only at the end of the project.
-- `development` — team integration branch. All feature PRs merge here first.
-- `feature/<short-name>` or `<role>/<short-name>` — your work.
-
-### Workflow per feature:
-```bash
-git checkout development
-git pull origin development
-git checkout -b feature/your-feature-name
-
-# ...do work, commit small focused commits...
-
-git push -u origin feature/your-feature-name
-
-# Open a PR via GitHub: feature/... → development
-# Wait for review, address feedback, then merge.
-```
-
-### Rules:
-- **Never push directly to `main` or `development`.** Always PR.
-- **PR title:** short, action-verb (e.g. "Add delivery agent assignment").
-- **PR description:** what changed, why, and how to test.
-- **Don't merge your own PR** — get one other team member to review.
-- **Resolve conflicts locally**, never via the GitHub "merge" button when conflicts exist.
-
----
-
-## 11. Per-role feature checklists
+## 10. Per-role feature checklists
 
 ### Role 1 — Customer (sakib2588) ✅ Done
 - [x] Register / Login / Logout
@@ -295,7 +265,7 @@ git push -u origin feature/your-feature-name
 
 ---
 
-## 12. Submission checklist (from MD, line 187–195)
+## 11. Submission checklist (from MD, line 187–195)
 
 Before pushing `development` → `main`:
 
@@ -310,31 +280,7 @@ Before pushing `development` → `main`:
 
 ---
 
-## 13. Quick reference — local setup
-
-```bash
-# 1. Clone
-git clone git@github.com:ampfibi1/-E-Commerce-Store.git
-cd -E-Commerce-Store
-git checkout development
-
-# 2. Move to XAMPP htdocs (or symlink)
-sudo cp -r . /opt/lampp/htdocs/ecommerce
-
-# 3. Start XAMPP
-sudo /opt/lampp/lampp start
-
-# 4. Set up DB (see Section 5)
-mysql -u root < shema.sql
-mysql -u root ecommerce < migrations/001_add_customer_addresses.sql
-
-# 5. Open the app
-xdg-open http://localhost/ecommerce/public/
-```
-
----
-
-## 14. Who to ping for what
+## 12. Who to ping for what
 
 | Question | Who |
 |---|---|
