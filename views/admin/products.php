@@ -1,6 +1,12 @@
 <?php
 session_start();
 
+if($_SESSION['user_role'] !== 'admin'){
+    header('Location: ../../controller/indexController.php');
+    exit();
+}
+
+
 $products = $_SESSION['products'] ?? [];
 $categories = $_SESSION['categories_filter'] ?? [];
 $sellers = $_SESSION['sellers_filter'] ?? [];
@@ -50,7 +56,7 @@ $seller = $_SESSION['seller'] ?? '';
                         value="<?= $sel['id'] ?>"
                         <?= ($seller == $sel['id']) ? 'selected' : '' ?>
                     >
-                        <?= htmlspecialchars($sel['name']) ?>
+                        <?= $sel['name'] ?>
                     </option>
                 <?php endforeach; ?>
             </select>

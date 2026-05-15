@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+if($_SESSION['user_role'] !== 'admin'){
+    header('Location: ../../controller/indexController.php');
+    exit();
+}
+
 $data = $_SESSION['analytics'] ?? [
     'gmv' => 0,
     'commission' => 0,
@@ -26,11 +32,11 @@ $data = $_SESSION['analytics'] ?? [
         <div class="stats">
             <div class="stat">
                 <h3>Gross Merchandise Value</h3>
-                <p>$<?= number_format($data['gmv'], 2) ?></p>
+                <p>$<?= $data['gmv'] ?></p>
             </div>
             <div class="stat">
                 <h3>Platform Commission Earned</h3>
-                <p>$<?= number_format($data['commission'], 2) ?></p>
+                <p>$<?= $data['commission'] ?></p>
             </div>
         </div>
         <h2>Top Performing Sellers</h2>
@@ -42,7 +48,7 @@ $data = $_SESSION['analytics'] ?? [
             <?php foreach ($data['top_sellers'] as $seller): ?>
             <tr>
                 <td><?= htmlspecialchars($seller['name']) ?></td>
-                <td>$<?= number_format($seller['revenue'], 2) ?></td>
+                <td>$<?= $seller['revenue'] ?></td>
             </tr>
             <?php endforeach; ?>
         </table>
@@ -54,8 +60,8 @@ $data = $_SESSION['analytics'] ?? [
             </tr>
             <?php foreach ($data['top_categories'] as $cat): ?>
             <tr>
-                <td><?= htmlspecialchars($cat['name']) ?></td>
-                <td>$<?= number_format($cat['revenue'], 2) ?></td>
+                <td><?= $cat['name'] ?></td>
+                <td>$<?= $cat['revenue'] ?></td>
             </tr>
             <?php endforeach; ?>
         </table>    

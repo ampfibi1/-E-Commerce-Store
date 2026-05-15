@@ -1,6 +1,12 @@
 <?php
 session_start();
 
+if($_SESSION['user_role'] !== 'admin'){
+    header('Location: ../../controller/indexController.php');
+    exit();
+}
+
+
 $announcements = $_SESSION['announcements'] ?? [];
 ?>
 <!DOCTYPE html>
@@ -25,8 +31,8 @@ $announcements = $_SESSION['announcements'] ?? [];
         <h2>Recent Announcements</h2>
         <?php foreach ($announcements as $ann): ?>
         <div class="announcement">
-            <h3><?= htmlspecialchars($ann['title']) ?></h3>
-            <p><?= nl2br(htmlspecialchars($ann['content'])) ?></p>
+            <h3><?= $ann['title'] ?></h3>
+            <p><?= $ann['content'] ?></p>
             <small>Posted on <?= $ann['created_at'] ?></small>
         </div>
         <?php endforeach; ?>

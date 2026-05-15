@@ -1,5 +1,12 @@
 <?php
 session_start();
+
+if($_SESSION['user_role'] !== 'admin'){
+    header('Location: ../../controller/indexController.php');
+    exit();
+}
+
+
 $disputes = $_SESSION['disputes'] ?? [];
 ?>
 <!DOCTYPE html>
@@ -28,11 +35,11 @@ $disputes = $_SESSION['disputes'] ?? [];
             <?php foreach ($disputes as $dispute): ?>
             <tr>
                 <td><?= $dispute['id'] ?></td>
-                <td><?= htmlspecialchars($dispute['customer_name']) ?></td>
-                <td><?= htmlspecialchars($dispute['seller_name']) ?></td>
+                <td><?= $dispute['customer_name'] ?></td>
+                <td><?= $dispute['seller_name']?></td>
                 <td><?= $dispute['order_id'] ?></td>
-                <td><?= htmlspecialchars($dispute['description']) ?></td>
-                <td><?= ucfirst($dispute['status']) ?></td>
+                <td><?= $dispute['description'] ?></td>
+                <td><?= $dispute['status'] ?></td>
                 <td><?= $dispute['created_at'] ?></td>
                 <td>
                     <?php if ($dispute['status'] == 'open'): ?>
@@ -42,7 +49,7 @@ $disputes = $_SESSION['disputes'] ?? [];
                         <button type="submit" name="resolve_dispute">Resolve</button>
                     </form>
                     <?php else: ?>
-                    <?= htmlspecialchars($dispute['admin_note']) ?>
+                    <?= $dispute['admin_note'] ?>
                     <?php endif; ?>
                 </td>
             </tr>

@@ -1,6 +1,11 @@
 <?php
 session_start();
 
+if($_SESSION['user_role'] !== 'admin'){
+    header('Location: ../../controller/indexController.php');
+    exit();
+}
+
 $sellers = $_SESSION['commission_sellers'] ?? [];
 ?>
 <!DOCTYPE html>
@@ -25,7 +30,7 @@ $sellers = $_SESSION['commission_sellers'] ?? [];
             </tr>
             <?php foreach ($sellers as $seller): ?>
             <tr>
-                <td><?= htmlspecialchars($seller['name']) ?></td>
+                <td><?= $seller['name'] ?></td>
                 <td><?= $seller['commission_rate'] ?>%</td>
                 <td>
                     <form action="../controller/adminController/settingsController.php" method="post">

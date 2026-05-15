@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+if($_SESSION['user_role'] !== 'admin'){
+    header('Location: ../../controller/indexController.php');
+    exit();
+}
+
 $users = $_SESSION['users'] ?? [];
 $search = $_SESSION['search'] ?? '';
 $role = $_SESSION['role'] ?? '';

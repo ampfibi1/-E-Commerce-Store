@@ -1,13 +1,16 @@
 <?php
 session_start();
 
+if($_SESSION['user_role'] !== 'admin'){
+    header('Location: ../../controller/indexController.php');
+    exit();
+}
+
 $categories = $_SESSION['categories'] ?? [];
 $parents = $_SESSION['parents'] ?? [];
 $error = $_SESSION['error'] ?? "";
 $editCat = $_SESSION['editCat'] ?? null;
 
-// clear flash messages
-unset($_SESSION['error'], $_SESSION['editCat']);
 ?>
 
 <!DOCTYPE html>
@@ -45,7 +48,7 @@ unset($_SESSION['error'], $_SESSION['editCat']);
             <?php foreach ($parents as $parent): ?>
                 <option value="<?= $parent['id'] ?>"
                     <?= isset($editCat) && $editCat['parent_id'] == $parent['id'] ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($parent['name']) ?>
+                    <?= $parent['name'] ?>
                 </option>
             <?php endforeach; ?>
         </select>

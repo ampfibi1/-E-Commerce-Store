@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+if($_SESSION['user_role'] !== 'admin'){
+    header('Location: ../../controller/indexController.php');
+    exit();
+}
+
 $data = $_SESSION['dashboard'] ;
 ?>
 <!DOCTYPE html>
@@ -30,7 +36,7 @@ $data = $_SESSION['dashboard'] ;
             </div>
             <div class="stat">
                 <h3>Revenue This Month</h3>
-                <p>$<?php echo number_format($data['revenue_this_month'], 2); ?></p>
+                <p>$<?php echo $data['revenue_this_month']; ?></p>
             </div>
         </div>
     

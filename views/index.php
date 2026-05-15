@@ -69,7 +69,6 @@ session_start();
 
             if (email === '' || password === '') {
                 document.getElementById('errormsg').textContent = 'Please fill in all fields.';
-                //alert('Please fill in all fields.');
                 event.preventDefault();
             }
         });

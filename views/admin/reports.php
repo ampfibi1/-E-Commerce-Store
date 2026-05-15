@@ -1,5 +1,12 @@
 <?php
 session_start();
+
+if($_SESSION['user_role'] !== 'admin'){
+    header('Location: ../../controller/indexController.php');
+    exit();
+}
+
+
 $report = $_SESSION['report'] ?? [
     'total_orders' => 0,
     'total_revenue' => 0,
@@ -28,8 +35,8 @@ $month = $_SESSION['report_month'] ?? date('Y-m');
         <div class="report">
             <h2>Report for <?= date('F Y', strtotime($month . '-01')) ?></h2>
             <p>Total Orders: <?= $report['total_orders'] ?></p>
-            <p>Total Revenue: $<?= number_format($report['total_revenue'], 2) ?></p>
-            <p>Commission Earned: $<?= number_format($report['commission'], 2) ?></p>
+            <p>Total Revenue: $<?= $report['total_revenue'] ?></p>
+            <p>Commission Earned: $<?= $report['commission'] ?></p>
             <p>New Sellers: <?= $report['new_sellers'] ?></p>
             <p>New Customers: <?= $report['new_customers'] ?></p>
             <button class="print" onclick="window.print()">Export as Printable</button>

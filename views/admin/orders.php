@@ -1,6 +1,11 @@
 <?php
 session_start();
 
+if($_SESSION['user_role'] !== 'admin'){
+    header('Location: ../../controller/indexController.php');
+    exit();
+}
+
 $orders = $_SESSION['orders'] ?? [];
 $sellers = $_SESSION['sellers_order'] ?? [];
 $customers = $_SESSION['customers_order'] ?? [];
@@ -70,7 +75,7 @@ $customer = $_SESSION['customer'] ?? '';
                         value="<?= $sel['id'] ?>"
                         <?= ($seller == $sel['id']) ? 'selected' : '' ?>
                     >
-                        <?= htmlspecialchars($sel['name']) ?>
+                        <?= $sel['name']?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -82,7 +87,7 @@ $customer = $_SESSION['customer'] ?? '';
                         value="<?= $cust['id'] ?>"
                         <?= ($customer == $cust['id']) ? 'selected' : '' ?>
                     >
-                        <?= htmlspecialchars($cust['name']) ?>
+                        <?= $cust['name'] ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -110,7 +115,7 @@ $customer = $_SESSION['customer'] ?? '';
                         <?= $order['customer_name'] ?>
                     </td>
                     <td>
-                        $<?= number_format($order['total_amount'], 2) ?>
+                        $<?= $order['total_amount'] ?>
                     </td>
 
                     <td> <?= $order['status'] ?></td>
