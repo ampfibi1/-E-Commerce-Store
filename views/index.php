@@ -1,9 +1,5 @@
 <?php
 session_start();
-if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
-    header('Location: ./admin/dashboard.php');
-    exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -56,7 +52,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
         </span>
         <form action="../controller/loginController.php" method="post" id="loginForm">
             <label for="email">Email:</label><br>
-            <input type="email" name="email" id="email" placeholder="Email" value="admin@example.com">
+            <input type="email" name="email" id="email" placeholder="Email" value="admin@gmail.com">
             <br>
             <label for="password">Password:</label><br>
             <input type="password" name="password" id="password" placeholder="Password" value="admin123">
