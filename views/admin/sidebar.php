@@ -16,6 +16,6 @@
             
             <hr></hr>
 
-            <li><a href="../../controller/logoutController.php">Logout</a></li>
+            <li><a href="../../controller/indexController.php">Logout</a></li>
         </ul>
 </div>
