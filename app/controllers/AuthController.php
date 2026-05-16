@@ -63,7 +63,7 @@ class AuthController {
                         $_SESSION['user_id']   = $user['id'];
                         $_SESSION['user_name'] = $user['name'];
                         $_SESSION['user_role'] = 'admin';
-                        redirect(str_replace('public/', '', BASE_URL));
+                        redirect(str_replace('public/', '', BASE_URL) . 'controller/adminController/dashboardController.php');
                     } else {
                         redirect(BASE_URL);
                     }
