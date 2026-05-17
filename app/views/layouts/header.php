@@ -53,6 +53,15 @@ require_once APP . '/views/layouts/icons.php';
                 <li><a href="<?php echo BASE_URL; ?>?c=seller&a=coupons" class="nav-link"><?php icon_tag(); ?><span>Coupons</span></a></li>
                 <li><a href="<?php echo BASE_URL; ?>?c=seller&a=disputes" class="nav-link"><?php icon_alert(); ?><span>Disputes</span></a></li>
                 <li><a href="<?php echo BASE_URL; ?>?c=auth&a=logout" class="nav-link nav-link-muted"><?php icon_logout(); ?><span>Logout</span></a></li>
+            <?php elseif ($_SESSION['role'] === 'delivery_manager'): ?>
+                <li><a href="<?php echo BASE_URL; ?>?c=delivery&a=dashboard" class="nav-link"><?php icon_dashboard(); ?><span>Dashboard</span></a></li>
+                <li><a href="<?php echo BASE_URL; ?>?c=delivery&a=dispatch" class="nav-link"><?php icon_box(); ?><span>Dispatch</span></a></li>
+                <li><a href="<?php echo BASE_URL; ?>?c=delivery&a=active" class="nav-link"><?php icon_truck(); ?><span>Active</span></a></li>
+                <li><a href="<?php echo BASE_URL; ?>?c=delivery&a=failed" class="nav-link"><?php icon_alert(); ?><span>Failed</span></a></li>
+                <li><a href="<?php echo BASE_URL; ?>?c=delivery&a=agents" class="nav-link"><?php icon_user(); ?><span>Agents</span></a></li>
+                <li><a href="<?php echo BASE_URL; ?>?c=delivery&a=zones" class="nav-link"><?php icon_tag(); ?><span>Zones</span></a></li>
+                <li><a href="<?php echo BASE_URL; ?>?c=delivery&a=reports" class="nav-link"><?php icon_chart(); ?><span>Reports</span></a></li>
+                <li><a href="<?php echo BASE_URL; ?>?c=auth&a=logout" class="nav-link nav-link-muted"><?php icon_logout(); ?><span>Logout</span></a></li>
             <?php elseif ($_SESSION['role'] === 'admin'): ?>
                 <li><a href="<?php echo BASE_URL; ?>?c=admin&a=dashboard" class="nav-link"><?php icon_shield(); ?><span>Admin</span></a></li>
                 <li><a href="<?php echo BASE_URL; ?>?c=auth&a=logout" class="nav-link nav-link-muted"><?php icon_logout(); ?><span>Logout</span></a></li>

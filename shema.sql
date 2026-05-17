@@ -247,7 +247,7 @@ INSERT INTO announcements (title, content) VALUES
 ('Welcome to BD Marketplace', 'Discover quality Bangladesh-made products from top sellers like Tamjid and Mahin.'),
 ('Holiday Sale', 'Enjoy exclusive discounts on electronics and fashion throughout December.');
 
---sample disputes values
+-- sample disputes values
 INSERT INTO disputes (
     customer_id,
     seller_id,
