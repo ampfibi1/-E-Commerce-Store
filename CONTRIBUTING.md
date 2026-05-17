@@ -14,7 +14,7 @@ This document is the single source of truth for how the four roles plug into one
 |---|---|---|---|
 | 1. Customer | **sakib2588** | `sakib/...` | ✅ Merged via PR #5 |
 | 2. Seller / Vendor | **sakib2588** | `sakib/...` | ✅ Merged via PR #5 |
-| 3. Delivery Manager | **TBD — please claim this** | `delivery/...` | ❌ Not started |
+| 3. Delivery Manager | **claimed** | `delivery/...` | 🚧 Implemented locally, separate PR in flight |
 | 4. Platform Admin | **ampfibi1** | `feature/...` | ✅ Merged via PR #6 |
 
 > **One member has 2 roles (Customer + Seller). The other two each own 1 role.** Delivery Manager is currently unassigned — someone must take it for the project to be complete.
@@ -40,7 +40,7 @@ These come straight from the assignment spec. Breaking any of these will cost ma
 
 These are team conventions — pick one approach and stick to it:
 
-1. **MVC structure:** `app/controllers/`, `app/models/`, `app/views/` (already used by Customer + Seller).
+1. **MVC structure with role subfolders:** every role gets its own folder inside `app/controllers/`, `app/models/`, and `app/views/`. Truly shared code (Auth, Info, Product, Order, Cart, etc.) lives in `SharedController/` / `SharedModel/`. See §4 for the exact tree.
 2. **Front controller:** all requests go through `public/index.php?c=Controller&a=action`. No direct `*.php` file access.
 3. **No HTML5 validation attributes** (`required`, `pattern`, `minlength`, `type="email"`). All validation in JS + PHP only.
 4. **MySQLi procedural style** (`mysqli_prepare`, `mysqli_stmt_bind_param`) — not OOP MySQLi.
@@ -61,30 +61,41 @@ ecommerce/
 │   ├── js/
 │   │   ├── validation.js   ← legacy JS + XMLHttpRequest (MD-required)
 │   │   └── interactions.js ← modern vanilla JS (toasts, mobile nav)
-│   └── uploads/            ← user-uploaded files
+│   └── uploads/            ← user-uploaded files (incl. product_images/)
 ├── app/
 │   ├── controllers/
-│   │   ├── AuthController.php          (shared login/logout — sakib)
-│   │   ├── CustomerController.php      (sakib)
-│   │   ├── SellerController.php        (sakib)
-│   │   ├── AdminController.php         (ampfibi1 — to be ported)
-│   │   └── DeliveryController.php      (TBD)
-│   ├── models/             ← all model files live here, one class per file
+│   │   ├── SharedController/        (sakib) — AuthController, InfoController
+│   │   ├── Customer_controller/     (sakib) — CustomerController.php
+│   │   ├── Seller_controller/       (sakib) — SellerController.php
+│   │   ├── Admin_controller/        (ampfibi1) — AdminController.php dispatcher + flat action scripts
+│   │   └── Delivery_controller/     (delivery owner) — DeliveryController.php
+│   ├── models/
+│   │   ├── SharedModel/             (sakib) — ProductModel, OrderModel, CartModel, CategoryModel, CouponModel, UserModel, ReturnModel, DeliveryZoneModel, connection.php, logModel.php
+│   │   ├── Customer_model/          (sakib) — AddressModel, CartModel, ReviewModel, WishlistModel
+│   │   ├── Seller_model/            (sakib) — SellerModel
+│   │   ├── Admin_model/             (ampfibi1) — analyticsModel, couponsModel, dashboardModel, etc.
+│   │   └── Delivery_model/          (delivery owner) — DeliveryAgentModel, DeliveryAssignmentModel, DeliveryReportModel, DeliveryZoneModel
 │   └── views/
 │       ├── layouts/        (header/footer/icons — shared)
 │       ├── auth/           (login, register — shared)
+│       ├── info/           (contact, help, terms — shared)
 │       ├── customer/       (sakib)
 │       ├── seller/         (sakib)
 │       ├── admin/          (ampfibi1)
-│       └── delivery/       (TBD)
-├── ajax/                   ← AJAX endpoints (one file per action)
-├── config/db.php           ← ONE database connection helper
-├── shema.sql               ← canonical schema (do not duplicate)
+│       └── delivery/       (delivery owner)
+├── ajax/                   ← AJAX endpoints, one file per action, named ajax/<role>_<action>.php
+├── config/db.php           ← ONE database connection helper + auth/role helpers
+├── shema.sql               ← canonical schema (do not modify directly)
+├── shema2.0.sql            ← updated schema for fresh setups
 ├── migrations/             ← additive schema changes (numbered .sql files)
 └── seed_demo.sql           ← optional demo data
 ```
 
-> **Current problem to resolve:** the admin code is currently in `controller/` (top-level) and `views/admin/` (top-level), with its own `index.php` at the repo root. **ampfibi1 needs to port the admin files into `app/controllers/AdminController.php` + `app/views/admin/`** so we have ONE front controller. Two `index.php` files is not acceptable.
+**Router resolution.** `public/index.php` holds a `$controller_class_map` that maps each `?c=<role>` slug to its controller-class + file path. When a teammate adds a new role, they append one entry to that map. Models are loaded recursively from `app/models/*/` so new role subfolders are picked up automatically.
+
+**SharedController & SharedModel ownership.** sakib maintains the Shared folders since they back Customer + Seller. Other roles may *use* shared code (e.g. `connection.php`, `OrderModel`) but should not modify it without coordinating.
+
+> **Resolved:** the old top-level `controller/`, `model/`, and `views/admin/` directories are being removed by the Admin port. The root `index.php` has already been deleted — `public/index.php` is the single front controller as the rule requires.
 
 ---
 
@@ -246,19 +257,19 @@ Suggestions:
 - [x] Reply to reviews (AJAX)
 - [x] Sales analytics dashboard
 
-### Role 3 — Delivery Manager (TBD) ❌ Not started
-- [ ] Login + logistics dashboard
-- [ ] Manage delivery agents (CRUD)
-- [ ] Manage delivery zones (CRUD)
-- [ ] View ready-for-dispatch orders
-- [ ] Assign agent to order
-- [ ] Update delivery status (Picked Up → In Transit → Delivered/Failed)
-- [ ] Failed delivery re-assignment
-- [ ] Delivery history
-- [ ] Agent performance report
-- [ ] Zone performance report
-- [ ] Daily/weekly delivery summary
-- [ ] **AJAX:** at least one feature using `XMLHttpRequest`
+### Role 3 — Delivery Manager 🚧 Implemented locally
+- [x] Login + logistics dashboard
+- [x] Manage delivery agents (CRUD)
+- [x] Manage delivery zones (CRUD)
+- [x] View ready-for-dispatch orders
+- [x] Assign agent to order
+- [x] Update delivery status (Picked Up → In Transit → Delivered/Failed)
+- [x] Failed delivery re-assignment
+- [x] Delivery history (via Active + Failed views)
+- [x] Agent performance report
+- [x] Zone performance report
+- [x] Daily/weekly delivery summary
+- [x] **AJAX:** `ajax/delivery_update_status.php` (live status changes via `XMLHttpRequest`)
 
 ### Role 4 — Platform Admin (ampfibi1)
 - [x] Admin dashboard
