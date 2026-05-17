@@ -3,6 +3,7 @@ function generateMonthlyReport($month,$conn) {
     $start = $month . '-01';
     $end = date('Y-m-t', strtotime($start));
 
+    
     // Total orders
     $totalOrders = 0;
     $sql = "SELECT COUNT(*) AS count FROM orders WHERE DATE(created_at) BETWEEN '$start' AND '$end'";
