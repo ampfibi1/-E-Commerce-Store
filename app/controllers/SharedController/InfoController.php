@@ -1,38 +1,36 @@
 <?php
+// ============================================================
+// app/controllers/SharedController/InfoController.php
+// Procedural controller — no classes (per CONTRIBUTING.md rule).
+// Every public action is a function named "info_<action>" so the
+// router can dispatch ?c=info&a=help → info_help($conn).
+// $conn is passed in by the router; never accessed via $this.
+// ============================================================
 
-class InfoController {
+function info_help($conn) {
+    $page_title = 'Help Center';
+    include APP . '/views/info/help.php';
+}
 
-    private $conn;
+function info_contact($conn) {
+    $page_title = 'Contact Us';
+    include APP . '/views/info/contact.php';
+}
 
-    public function __construct($conn) {
-        $this->conn = $conn;
+function info_terms($conn) {
+    $page_title = 'Terms & Privacy';
+    include APP . '/views/info/terms.php';
+}
+
+// Smart redirect: send customers to their dispute page, sellers to theirs,
+// and unauthenticated visitors to login first.
+function info_disputes($conn) {
+    if (!isset($_SESSION['uid'])) {
+        set_flash('info', 'Please log in to open or view disputes.');
+        redirect(BASE_URL . '?c=auth&a=login');
     }
-
-    public function help() {
-        $page_title = 'Help Center';
-        include APP . '/views/info/help.php';
+    if ($_SESSION['role'] === 'seller') {
+        redirect(BASE_URL . '?c=seller&a=disputes');
     }
-
-    public function contact() {
-        $page_title = 'Contact Us';
-        include APP . '/views/info/contact.php';
-    }
-
-    public function terms() {
-        $page_title = 'Terms & Privacy';
-        include APP . '/views/info/terms.php';
-    }
-
-    public function disputes() {
-        // Smart redirect: send customers to their dispute page, sellers to theirs,
-        // and unauthenticated visitors to login first.
-        if (!isset($_SESSION['uid'])) {
-            set_flash('info', 'Please log in to open or view disputes.');
-            redirect(BASE_URL . '?c=auth&a=login');
-        }
-        if ($_SESSION['role'] === 'seller') {
-            redirect(BASE_URL . '?c=seller&a=disputes');
-        }
-        redirect(BASE_URL . '?c=customer&a=disputes');
-    }
+    redirect(BASE_URL . '?c=customer&a=disputes');
 }

@@ -43,7 +43,10 @@ These are team conventions — pick one approach and stick to it:
 1. **MVC structure with role subfolders:** every role gets its own folder inside `app/controllers/`, `app/models/`, and `app/views/`. Truly shared code (Auth, Info, Product, Order, Cart, etc.) lives in `SharedController/` / `SharedModel/`. See §4 for the exact tree.
 2. **Front controller:** all requests go through `public/index.php?c=Controller&a=action`. No direct `*.php` file access.
 3. **No HTML5 validation attributes** (`required`, `pattern`, `minlength`, `type="email"`). All validation in JS + PHP only.
-4. **MySQLi procedural style** (`mysqli_prepare`, `mysqli_stmt_bind_param`) — not OOP MySQLi.
+4. **Procedural PHP — no classes anywhere.** Both the database API and the application code stay procedural:
+   - **MySQLi** uses `mysqli_prepare`, `mysqli_stmt_bind_param`, `mysqli_stmt_execute`, etc. — not OOP MySQLi (no `$conn->prepare(...)`, no `new mysqli(...)`).
+   - **Controllers** are files of plain functions, NOT classes. Each action is `function <role>_<action>($conn) { ... }`, e.g. `customer_cart($conn)`, `admin_dashboard($conn)`. The router calls them directly. No `$this`, no constructors, no property access.
+   - **Models** are also plain functions (already the case before).
 5. **Password hashing** — `password_hash()` on register, `password_verify()` on login. Never store plaintext.
 6. **Single CSS file:** `public/css/style.css`. Don't fork per-role CSS files.
 7. **Icons:** use the inline SVG helpers in `app/views/layouts/icons.php`.
@@ -91,7 +94,11 @@ ecommerce/
 └── seed_demo.sql           ← optional demo data
 ```
 
-**Router resolution.** `public/index.php` holds a `$controller_class_map` that maps each `?c=<role>` slug to its controller-class + file path. When a teammate adds a new role, they append one entry to that map. Models are loaded recursively from `app/models/*/` so new role subfolders are picked up automatically.
+**Router resolution.** `public/index.php` holds a `$controller_file_map` that maps each `?c=<role>` slug to its controller file path. The router then calls the function `<role>_<action>` directly (e.g. `?c=admin&a=dashboard` → `admin_dashboard($conn)`). When a teammate adds a new role, they append one entry to that map and create a file of `function <role>_<action>($conn)` definitions. Models are loaded recursively from `app/models/*/` so new role subfolders are picked up automatically.
+
+**Auth gate convention.** Each controller file defines a small `<role>_require_auth($conn = null)` function that wraps the appropriate `require_role(...)` / `require_seller_approved(...)` call. EVERY action function calls it as its first line. Anonymous-browse actions (e.g. `customer_products`, `customer_product`) intentionally skip the gate; this is the only place where the auth call is omitted, and the reason should be obvious from the action name.
+
+**No name collisions between controllers and models.** Because controllers and models share the global function namespace, an action name like `delivery_zone_delete` can collide with an existing model function. When a collision happens, rename the model (controller URL names are externally visible). Example: model `delivery_zone_delete` was renamed to `delivery_zone_remove` so the controller could expose `?c=delivery&a=zone_delete` cleanly.
 
 **SharedController & SharedModel ownership.** sakib maintains the Shared folders since they back Customer + Seller. Other roles may *use* shared code (e.g. `connection.php`, `OrderModel`) but should not modify it without coordinating.
 

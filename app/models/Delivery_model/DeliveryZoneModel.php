@@ -54,7 +54,12 @@ function delivery_zone_update($conn, $id, $zone_name, $delivery_fee, $estimated_
     mysqli_stmt_close($stmt);
 }
 
-function delivery_zone_delete($conn, $id) {
+// Renamed from delivery_zone_delete to avoid colliding with the
+// controller function of the same name (?c=delivery&a=zone_delete →
+// delivery_zone_delete()). Models live in the same global function
+// namespace as procedural controllers, so the controller needs the
+// short URL-shaped name and the model uses an explicit -_remove verb.
+function delivery_zone_remove($conn, $id) {
     $stmt = mysqli_prepare($conn,
         "DELETE FROM delivery_zones WHERE id = ?");
     mysqli_stmt_bind_param($stmt, 'i', $id);
