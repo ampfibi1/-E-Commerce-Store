@@ -27,7 +27,7 @@ if ($c === 'auth' && $a === 'login' && isset($_SESSION['uid'])) {
     if ($role === 'customer')          redirect(BASE_URL . '?c=customer&a=dashboard');
     if ($role === 'seller')            redirect(BASE_URL . '?c=seller&a=dashboard');
     if ($role === 'delivery_manager')  redirect(BASE_URL . '?c=delivery&a=dashboard');
-    // admin: legacy direct-file pages — leave on login for now
+    if ($role === 'admin')             redirect(BASE_URL . '?c=admin&a=dashboard');
 }
 
 $controller_file = isset($controller_class_map[$c]) ? $controller_class_map[$c][1] : '';
