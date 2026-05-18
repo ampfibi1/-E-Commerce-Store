@@ -73,10 +73,16 @@ function order_get_by_customer($conn, $customer_id) {
 
 function order_get_by_id($conn, $order_id) {
     $stmt = mysqli_prepare($conn,
-        "SELECT o.*, z.zone_name, u.name AS customer_name, u.email AS customer_email, u.phone AS customer_phone
+        "SELECT o.*, z.zone_name,
+                u.name AS customer_name, u.email AS customer_email, u.phone AS customer_phone,
+                da.status      AS delivery_status,
+                da.updated_at  AS delivery_updated_at,
+                ag.name        AS delivery_agent_name
          FROM orders o
          JOIN delivery_zones z ON o.zone_id      = z.id
          JOIN users          u ON o.customer_id  = u.id
+         LEFT JOIN delivery_assignments da ON da.order_id = o.id
+         LEFT JOIN delivery_agents      ag ON ag.id       = da.agent_id
          WHERE o.id = ?
          LIMIT 1"
     );
@@ -167,7 +173,52 @@ function order_item_update_status($conn, $item_id, $status, $note = '') {
     mysqli_stmt_bind_param($stmt, "ssi", $status, $note, $item_id);
     $ok = mysqli_stmt_execute($stmt);
     mysqli_stmt_close($stmt);
+
+    if ($ok) {
+        // Roll up: parent order.status = the "lowest" item_status across all
+        // its items, so confirming the last pending item flips the order to
+        // confirmed, shipping the last confirmed item flips it to shipped, etc.
+        $stmt = mysqli_prepare($conn, "SELECT order_id FROM order_items WHERE id = ?");
+        mysqli_stmt_bind_param($stmt, "i", $item_id);
+        mysqli_stmt_execute($stmt);
+        $res = mysqli_stmt_get_result($stmt);
+        $row = mysqli_fetch_assoc($res);
+        mysqli_stmt_close($stmt);
+        if ($row) {
+            order_recompute_status($conn, (int)$row['order_id']);
+        }
+    }
     return $ok;
+}
+
+// Recompute orders.status from the current item_status values.
+// Rule: take the earliest-stage status across all items
+// (pending < confirmed < shipped < delivered).
+function order_recompute_status($conn, $order_id) {
+    $stmt = mysqli_prepare($conn,
+        "SELECT MIN(FIELD(item_status,'pending','confirmed','shipped','delivered')) AS min_rank
+         FROM order_items WHERE order_id = ?"
+    );
+    mysqli_stmt_bind_param($stmt, "i", $order_id);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($res);
+    mysqli_stmt_close($stmt);
+    if (!$row || $row['min_rank'] === null) { return; }
+
+    $map = array(1 => 'pending', 2 => 'confirmed', 3 => 'shipped', 4 => 'delivered');
+    $new_status = isset($map[(int)$row['min_rank']]) ? $map[(int)$row['min_rank']] : null;
+    if (!$new_status) { return; }
+
+    // Don't downgrade orders that have already moved beyond the item lifecycle
+    // (e.g. cancelled, returned).
+    $stmt = mysqli_prepare($conn,
+        "UPDATE orders SET status = ?
+         WHERE id = ? AND status NOT IN ('cancelled','return_requested','returned')"
+    );
+    mysqli_stmt_bind_param($stmt, "si", $new_status, $order_id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
 }
 
 function order_can_cancel($conn, $order_id) {

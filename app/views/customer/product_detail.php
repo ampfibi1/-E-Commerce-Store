@@ -25,7 +25,7 @@
             ?>
             <?php if ($first_img): ?>
                 <img
-                    src="<?php echo BASE_URL . 'uploads/products/' . sanitize($first_img); ?>"
+                    src="<?php echo UPLOAD_URL . 'product_images/' . sanitize($first_img); ?>"
                     alt="<?php echo sanitize($product['name']); ?>"
                     class="product-main-image"
                     id="mainProductImage"
@@ -43,7 +43,7 @@
         <div class="image-thumbnails" style="margin-top:0.75rem;">
             <?php foreach ($all_images as $idx => $img): ?>
             <img
-                src="<?php echo BASE_URL . 'uploads/products/' . sanitize($img['image_path']); ?>"
+                src="<?php echo UPLOAD_URL . 'product_images/' . sanitize($img['image_path']); ?>"
                 alt="Thumbnail <?php echo $idx + 1; ?>"
                 class="image-thumb <?php echo $idx === 0 ? 'active' : ''; ?>"
                 onclick="setImage(<?php echo $idx; ?>, this)"
@@ -103,11 +103,16 @@
             <div class="form-group" style="margin:0; display:flex; align-items:center; gap:0.5rem;">
                 <label class="form-label" style="margin:0; white-space:nowrap;">Qty:</label>
                 <input
-                    type="text"
+                    type="number"
                     name="qty"
                     value="1"
+                    min="1"
+                    step="1"
+                    max="<?php echo (int)$product['stock_qty']; ?>"
+                    required
                     class="qty-input"
                     id="detailQty"
+                    oninput="if(this.value < 1 || this.value === '') this.value = 1;"
                 >
             </div>
             <button type="submit" class="btn btn-primary">Add to Cart</button>
@@ -271,7 +276,7 @@
 /* Image carousel */
 var carouselImages = [
     <?php foreach ($all_images as $img): ?>
-    '<?php echo BASE_URL . 'uploads/products/' . sanitize($img['image_path']); ?>',
+    '<?php echo UPLOAD_URL . 'product_images/' . sanitize($img['image_path']); ?>',
     <?php endforeach; ?>
 ];
 var currentImgIndex = 0;

@@ -18,6 +18,7 @@ include APP . '/views/layouts/header.php';
             <thead>
                 <tr>
                     <th>Order ID</th>
+                    <th>Seller</th>
                     <th>Agent</th>
                     <th>Zone</th>
                     <th>Amount</th>
@@ -30,6 +31,7 @@ include APP . '/views/layouts/header.php';
                 <?php foreach ($failed_deliveries as $d): ?>
                 <tr>
                     <td>#<?php echo (int)$d['order_id']; ?></td>
+                    <td><?php echo sanitize($d['shop_name'] ?? '—'); ?></td>
                     <td><?php echo sanitize($d['agent_name']); ?></td>
                     <td><?php echo sanitize($d['zone_name']); ?></td>
                     <td>&#2547; <?php echo number_format((float)$d['total_amount'], 2); ?></td>

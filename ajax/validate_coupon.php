@@ -6,8 +6,8 @@ session_start();
 header('Content-Type: application/json');
 
 require_once dirname(__DIR__) . '/config/db.php';
-require_once APP . '/models/CouponModel.php';
-
+foreach (glob(APP . '/models/*.php') as $_mf) require_once $_mf;
+foreach (glob(APP . '/models/*/*.php') as $_mf) require_once $_mf;
 // Only accept POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(array(

@@ -680,10 +680,35 @@ class SellerController {
         require_seller_approved($this->conn);
         $sid = (int)$_SESSION['sid'];
         $id  = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        $errors = array();
 
         if ($id <= 0) {
             set_flash('error', 'Invalid dispute id.');
             redirect(BASE_URL . '?c=seller&a=disputes');
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $response = isset($_POST['seller_response']) ? trim($_POST['seller_response']) : '';
+            $action   = isset($_POST['action']) ? $_POST['action'] : '';
+
+            if ($response === '') {
+                $errors['seller_response'] = 'Please write a response before submitting.';
+            }
+            if (!in_array($action, array('accepted', 'rejected'), true)) {
+                $errors['general'] = 'Please choose Accept or Reject.';
+            }
+
+            if (empty($errors)) {
+                $ok = dispute_seller_respond($this->conn, $id, $sid, $response, $action);
+                if ($ok) {
+                    set_flash('success', $action === 'accepted'
+                        ? 'Dispute accepted and marked as resolved.'
+                        : 'Dispute rejected and escalated to admin.');
+                    redirect(BASE_URL . '?c=seller&a=disputeDetail&id=' . $id);
+                } else {
+                    $errors['general'] = 'Could not save your response. Please try again.';
+                }
+            }
         }
 
         $dispute = dispute_get_one_for_seller($this->conn, $id, $sid);

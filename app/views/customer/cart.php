@@ -29,7 +29,7 @@
                         <td>
                             <?php if (!empty($item['primary_image_path'])): ?>
                             <img
-                                src="<?php echo UPLOAD_URL . sanitize($item['primary_image_path']); ?>"
+                                src="<?php echo UPLOAD_URL . 'product_images/' . sanitize($item['primary_image_path']); ?>"
                                 alt="<?php echo sanitize($item['name']); ?>"
                                 class="product-thumb"
                             >
@@ -49,9 +49,11 @@
                             <form method="POST" action="<?php echo BASE_URL; ?>?c=customer&a=cart" style="display:flex; gap:4px; align-items:center;">
                                 <input type="hidden" name="action" value="update">
                                 <input type="hidden" name="product_id" value="<?php echo (int)$item['product_id']; ?>">
-                                <input type="text" name="qty" value="<?php echo (int)$item['qty']; ?>"
+                                <input type="number" name="qty" value="<?php echo (int)$item['qty']; ?>"
+                                       min="1" step="1" required
                                        class="qty-input"
-                                       id="qty-<?php echo (int)$item['product_id']; ?>">
+                                       id="qty-<?php echo (int)$item['product_id']; ?>"
+                                       oninput="if(this.value < 1 || this.value === '') this.value = 1;">
                                 <button type="submit" class="btn btn-secondary btn-small">Update</button>
                             </form>
                         </td>

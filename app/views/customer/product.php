@@ -8,14 +8,14 @@ include APP . '/views/layouts/header.php';
     <!-- Main image -->
     <div style="flex:0 0 340px;">
         <?php if ($product['primary_image_path']): ?>
-            <img src="<?php echo UPLOAD_URL . sanitize($product['primary_image_path']); ?>"
+            <img src="<?php echo UPLOAD_URL . 'product_images/' . sanitize($product['primary_image_path']); ?>"
                  alt="<?php echo sanitize($product['name']); ?>"
                  style="width:100%;border-radius:6px;" id="mainProductImg">
         <?php endif; ?>
         <?php if (!empty($images)): ?>
             <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
             <?php foreach ($images as $img): ?>
-                <img src="<?php echo UPLOAD_URL . sanitize($img['image_path']); ?>"
+                <img src="<?php echo UPLOAD_URL . 'product_images/' . sanitize($img['image_path']); ?>"
                      style="width:70px;height:70px;object-fit:cover;cursor:pointer;border-radius:4px;border:2px solid transparent;"
                      onclick="document.getElementById('mainProductImg').src=this.src;">
             <?php endforeach; ?>
@@ -37,7 +37,7 @@ include APP . '/views/layouts/header.php';
                 <form method="POST" action="<?php echo BASE_URL; ?>?c=customer&a=cart" style="display:flex;gap:6px;align-items:center;">
                     <input type="hidden" name="action" value="add">
                     <input type="hidden" name="product_id" value="<?php echo (int)$product['id']; ?>">
-                    <input type="text" name="qty" value="1" class="form-control" style="width:70px;">
+                    <input type="number" name="qty" value="1" min="1" step="1" max="<?php echo (int)$product['stock_qty']; ?>" required class="form-control" style="width:70px;" oninput="if(this.value < 1 || this.value === '') this.value = 1;">
                     <button type="submit" class="btn btn-primary" <?php echo ((int)$product['stock_qty'] <= 0 || !(int)$product['is_available']) ? 'disabled' : ''; ?>>Add to Cart</button>
                 </form>
                 <button id="wishlistBtn"

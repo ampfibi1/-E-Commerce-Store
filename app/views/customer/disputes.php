@@ -33,9 +33,22 @@
                 <td><?php echo $did; ?></td>
                 <td><strong>#<?php echo isset($d['order_id']) ? (int)$d['order_id'] : '—'; ?></strong></td>
                 <td>
-                    <span class="dispute-description">
+                    <div style="margin-bottom:0.35rem;"><b>You:</b>
                         <?php echo sanitize(mb_strlen($d['description']) > 80 ? mb_substr($d['description'], 0, 80) . '...' : $d['description']); ?>
-                    </span>
+                    </div>
+                    <?php if (!empty($d['seller_response'])): ?>
+                        <?php
+                        $sa = isset($d['seller_action']) ? $d['seller_action'] : 'none';
+                        $sa_color = ($sa === 'accepted') ? '#28a745' : (($sa === 'rejected') ? '#dc3545' : '#2c7be5');
+                        $sa_label = ($sa === 'accepted') ? 'Accepted' : (($sa === 'rejected') ? 'Rejected' : 'Replied');
+                        ?>
+                        <div style="background:#f9fafc;border-left:3px solid <?php echo $sa_color; ?>;padding:0.4rem 0.6rem;border-radius:3px;font-size:0.88rem;">
+                            <b style="color:<?php echo $sa_color; ?>;"><?php echo $sa_label; ?> &mdash; Seller:</b>
+                            <?php echo sanitize(mb_strlen($d['seller_response']) > 100 ? mb_substr($d['seller_response'], 0, 100) . '...' : $d['seller_response']); ?>
+                        </div>
+                    <?php else: ?>
+                        <div style="color:#aaa;font-size:0.85rem;">Seller hasn't replied yet.</div>
+                    <?php endif; ?>
                 </td>
                 <td>
                     <span class="badge <?php echo $d_badge; ?>">

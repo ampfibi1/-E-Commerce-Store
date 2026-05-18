@@ -337,6 +337,7 @@ class CustomerController {
             $action     = isset($_POST['action'])     ? $_POST['action']     : '';
             $product_id = isset($_POST['product_id']) ? (int)$_POST['product_id'] : 0;
             $qty        = isset($_POST['qty'])        ? (int)$_POST['qty']   : 1;
+            if ($qty < 1) { $qty = 1; }
 
             if ($action === 'add' && $product_id > 0) {
                 $product = product_get_by_id($this->conn, $product_id);
@@ -606,18 +607,22 @@ class CustomerController {
         $errors = array();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $seller_id   = isset($_POST['seller_id'])   ? (int)$_POST['seller_id']   : 0;
             $order_id    = isset($_POST['order_id'])    ? (int)$_POST['order_id']    : 0;
             $description = isset($_POST['description']) ? trim($_POST['description']) : '';
 
-            if ($seller_id <= 0) {
-                $errors['seller_id'] = 'Please select a seller.';
-            }
             if ($order_id <= 0) {
                 $errors['order_id'] = 'Please select the related order.';
             }
             if ($description === '') {
                 $errors['description'] = 'Please describe the issue.';
+            }
+
+            $seller_id = 0;
+            if (empty($errors)) {
+                $seller_id = dispute_seller_for_order($this->conn, $order_id, $uid);
+                if ($seller_id <= 0) {
+                    $errors['order_id'] = 'Selected order is not valid.';
+                }
             }
 
             if (empty($errors)) {

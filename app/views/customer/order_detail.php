@@ -48,6 +48,37 @@ $page_title = 'Order #' . $oid;
             <?php endif; ?>
         </div>
         <?php endif; ?>
+        <?php if (!empty($order['delivery_status'])): ?>
+        <div>
+            <span class="text-muted">Delivery Update:</span><br>
+            <?php
+            $ds = strtolower($order['delivery_status']);
+            $ds_label_map = array(
+                'assigned'   => 'Assigned to courier',
+                'picked_up'  => 'Picked up by courier',
+                'in_transit' => 'Out for delivery',
+                'delivered'  => 'Delivered',
+                'failed'     => 'Delivery failed',
+            );
+            $ds_color_map = array(
+                'assigned' => '#6c757d', 'picked_up' => '#17a2b8',
+                'in_transit' => '#fd7e14', 'delivered' => '#28a745',
+                'failed' => '#dc3545',
+            );
+            $ds_label = isset($ds_label_map[$ds]) ? $ds_label_map[$ds] : ucfirst($ds);
+            $ds_color = isset($ds_color_map[$ds]) ? $ds_color_map[$ds] : '#6c757d';
+            ?>
+            <strong style="color:<?php echo $ds_color; ?>;"><?php echo sanitize($ds_label); ?></strong>
+            <?php if (!empty($order['delivery_agent_name'])): ?>
+                <div class="text-muted" style="font-size:0.85rem;">
+                    Agent: <?php echo sanitize($order['delivery_agent_name']); ?>
+                    <?php if (!empty($order['delivery_updated_at'])): ?>
+                        &middot; <?php echo sanitize(date('d M, H:i', strtotime($order['delivery_updated_at']))); ?>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
 
