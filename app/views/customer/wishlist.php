@@ -16,7 +16,7 @@
     <div class="product-card" id="wish-<?php echo (int)$w['product_id']; ?>">
         <?php if (!empty($w['primary_image_path'])): ?>
             <img
-                src="<?php echo UPLOAD_URL . sanitize($w['primary_image_path']); ?>"
+                src="<?php echo UPLOAD_URL . 'product_images/' . sanitize($w['primary_image_path']); ?>"
                 alt="<?php echo sanitize($w['name']); ?>"
                 class="product-card-image"
             >

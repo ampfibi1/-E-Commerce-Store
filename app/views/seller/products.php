@@ -33,8 +33,8 @@ include APP . '/views/layouts/header.php';
             <tr>
                 <td><?php echo $i + 1; ?></td>
                 <td>
-                    <?php if (!empty($product['primary_image'])): ?>
-                    <img src="<?php echo UPLOAD_URL . 'product_images/' . sanitize($product['primary_image']); ?>"
+                    <?php if (!empty($product['primary_image_path'])): ?>
+                    <img src="<?php echo UPLOAD_URL . 'product_images/' . sanitize($product['primary_image_path']); ?>"
                          alt="<?php echo sanitize($product['name']); ?>"
                          class="product-thumb">
                     <?php else: ?>

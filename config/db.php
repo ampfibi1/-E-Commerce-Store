@@ -6,7 +6,15 @@ define('DB_NAME', 'ecommerce');
 
 define('APP', dirname(__DIR__) . '/app');
 define('ROOT', dirname(__DIR__));
-define('BASE_URL', 'http://localhost/ecommerce/public/');
+// Auto-detect BASE_URL from the running request so the project works no
+// matter what folder the repo lives in (e.g. /ecommerce/, /shophub/, or
+// whatever name a teammate's zip extracted to).
+if (!defined('BASE_URL')) {
+    $_bu_scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $_bu_host   = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+    $_bu_dir    = isset($_SERVER['SCRIPT_NAME']) ? rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') : '';
+    define('BASE_URL', $_bu_scheme . '://' . $_bu_host . $_bu_dir . '/');
+}
 define('UPLOAD_PATH', dirname(__DIR__) . '/public/uploads/');
 define('UPLOAD_URL', BASE_URL . 'uploads/');
 

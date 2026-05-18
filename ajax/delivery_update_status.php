@@ -11,10 +11,10 @@ header('Content-Type: application/json');
 
 // Load DB + helpers (two levels up from ajax/)
 require_once dirname(__DIR__) . '/config/db.php';
-require_once APP . '/models/Delivery_model/DeliveryAssignmentModel.php';
-
+foreach (glob(APP . '/models/*.php') as $_mf) require_once $_mf;
+foreach (glob(APP . '/models/*/*.php') as $_mf) require_once $_mf;
 // --- Auth check ---
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'delivery_manager') {
+if (!isset($_SESSION['uid']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'delivery_manager') {
     echo json_encode(array('success' => false, 'message' => 'Login required.'));
     exit;
 }

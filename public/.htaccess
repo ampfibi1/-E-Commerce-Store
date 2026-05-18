@@ -1,6 +1,11 @@
 Options -Indexes
 RewriteEngine On
-RewriteBase /ecommerce/public/
+
+# Intentionally no RewriteBase: the rewrite rule below is relative to the
+# directory this .htaccess sits in, so it works no matter what folder the
+# project was cloned/extracted into (e.g. /ecommerce/public/,
+# /-E-Commerce-Store-development/public/, /shophub/public/ ...). Pair this
+# with the BASE_URL auto-detect in config/db.php.
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

@@ -6,9 +6,10 @@
 
 function delivery_zone_get_all($conn) {
     $stmt = mysqli_prepare($conn,
-        "SELECT id, zone_name, delivery_fee, estimated_days, created_at
+        "SELECT id, zone_name, delivery_fee, estimated_days
          FROM delivery_zones
          ORDER BY zone_name ASC");
+    if (!$stmt) { return array(); }
     mysqli_stmt_execute($stmt);
     $res   = mysqli_stmt_get_result($stmt);
     $zones = array();

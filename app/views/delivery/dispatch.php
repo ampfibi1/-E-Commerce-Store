@@ -20,13 +20,21 @@ include APP . '/views/layouts/header.php';
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="order_id">Select Order</label>
-                    <select id="order_id" name="order_id" class="form-control">
-                        <option value="0">-- Select Order --</option>
+                    <label for="order_id">Select Order &amp; Seller</label>
+                    <select id="order_id" name="order_id" class="form-control" onchange="syncZoneFromOrder()">
+                        <option value="0:0" data-zone-id="0" data-zone-name="">-- Select Order --</option>
                         <?php foreach ($orders as $order): ?>
-                        <option value="<?php echo (int)$order['id']; ?>">
+                        <option value="<?php echo (int)$order['id']; ?>:<?php echo (int)$order['seller_id']; ?>"
+                                data-zone-id="<?php echo (int)$order['zone_id']; ?>"
+                                data-zone-name="<?php echo sanitize($order['zone_name'] ?? ''); ?>"
+                                data-zone-fee="<?php echo (float)($order['delivery_fee'] ?? 0); ?>">
                             Order #<?php echo (int)$order['id']; ?> &mdash;
-                            &#2547; <?php echo number_format((float)$order['total_amount'], 2); ?>
+                            <?php echo sanitize($order['shop_name'] ?? ('Seller #' . (int)$order['seller_id'])); ?>
+                            (<?php echo (int)$order['item_count']; ?> item<?php echo (int)$order['item_count'] > 1 ? 's' : ''; ?>,
+                             &#2547; <?php echo number_format((float)$order['seller_subtotal'], 2); ?>)
+                            <?php if (!empty($order['zone_name'])): ?>
+                                &mdash; <?php echo sanitize($order['zone_name']); ?>
+                            <?php endif; ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
@@ -47,16 +55,10 @@ include APP . '/views/layouts/header.php';
                 </div>
 
                 <div class="form-group">
-                    <label for="zone_id">Select Zone</label>
-                    <select id="zone_id" name="zone_id" class="form-control">
-                        <option value="0">-- Select Zone --</option>
-                        <?php foreach ($zones as $zone): ?>
-                        <option value="<?php echo (int)$zone['id']; ?>">
-                            <?php echo sanitize($zone['zone_name']); ?>
-                            (&#2547; <?php echo number_format((float)$zone['delivery_fee'],2); ?>)
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <label for="zone_display">Delivery Zone</label>
+                    <input type="text" id="zone_display" class="form-control" readonly
+                           value="" placeholder="Auto-filled from selected order">
+                    <input type="hidden" id="zone_id" name="zone_id" value="0">
                     <span class="err" id="err_zone_id"><?php echo isset($errors['zone_id']) ? sanitize($errors['zone_id']) : ''; ?></span>
                 </div>
             </div>
@@ -67,19 +69,36 @@ include APP . '/views/layouts/header.php';
         </form>
     </div>
 
-    <!-- Unassigned orders table -->
+    <script>
+    function syncZoneFromOrder() {
+        var orderSel = document.getElementById('order_id');
+        var opt = orderSel.options[orderSel.selectedIndex];
+        var zid  = opt.getAttribute('data-zone-id') || '0';
+        var name = opt.getAttribute('data-zone-name') || '';
+        var fee  = opt.getAttribute('data-zone-fee') || '';
+        document.getElementById('zone_id').value = zid;
+        var disp = '';
+        if (zid !== '0' && name !== '') {
+            disp = name + (fee ? ' (৳ ' + parseFloat(fee).toFixed(2) + ')' : '');
+        }
+        document.getElementById('zone_display').value = disp;
+    }
+    </script>
+
+    <!-- Unassigned shipments table -->
     <div class="dashboard-section">
-        <h2>Unassigned Shipped Orders (<?php echo count($orders); ?>)</h2>
+        <h2>Pending Dispatch (<?php echo count($orders); ?>)</h2>
         <?php if (empty($orders)): ?>
-            <p class="empty-state">No orders pending dispatch. All caught up!</p>
+            <p class="empty-state">No shipments pending dispatch. All caught up!</p>
         <?php else: ?>
         <table class="data-table">
             <thead>
                 <tr>
                     <th>Order ID</th>
-                    <th>Customer ID</th>
-                    <th>Total Amount</th>
-                    <th>Order Status</th>
+                    <th>Seller</th>
+                    <th>Items</th>
+                    <th>Seller Subtotal</th>
+                    <th>Zone</th>
                     <th>Ordered At</th>
                 </tr>
             </thead>
@@ -87,9 +106,10 @@ include APP . '/views/layouts/header.php';
                 <?php foreach ($orders as $order): ?>
                 <tr>
                     <td>#<?php echo (int)$order['id']; ?></td>
-                    <td><?php echo (int)$order['user_id']; ?></td>
-                    <td>&#2547; <?php echo number_format((float)$order['total_amount'], 2); ?></td>
-                    <td><span class="badge badge-warning">Shipped</span></td>
+                    <td><?php echo sanitize($order['shop_name'] ?? ('Seller #' . (int)$order['seller_id'])); ?></td>
+                    <td><?php echo (int)$order['item_count']; ?></td>
+                    <td>&#2547; <?php echo number_format((float)$order['seller_subtotal'], 2); ?></td>
+                    <td><?php echo sanitize($order['zone_name'] ?? '—'); ?></td>
                     <td><?php echo sanitize(date('d M Y, H:i', strtotime($order['created_at']))); ?></td>
                 </tr>
                 <?php endforeach; ?>

@@ -249,17 +249,23 @@ class DeliveryController {
         $page_title = 'Ready for Dispatch';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $order_id = isset($_POST['order_id']) ? (int)$_POST['order_id'] : 0;
-            $agent_id = isset($_POST['agent_id']) ? (int)$_POST['agent_id'] : 0;
-            $zone_id  = isset($_POST['zone_id'])  ? (int)$_POST['zone_id']  : 0;
+            // The dispatch form submits a composite value "<order_id>:<seller_id>"
+            // in the order_id field so the manager picks a specific seller's
+            // shipment within the order, not the order as a whole.
+            $raw      = isset($_POST['order_id']) ? trim($_POST['order_id']) : '';
+            $parts    = explode(':', $raw);
+            $order_id  = isset($parts[0]) ? (int)$parts[0] : 0;
+            $seller_id = isset($parts[1]) ? (int)$parts[1] : 0;
+            $agent_id  = isset($_POST['agent_id']) ? (int)$_POST['agent_id'] : 0;
+            $zone_id   = isset($_POST['zone_id'])  ? (int)$_POST['zone_id']  : 0;
 
-            if ($order_id === 0) $errors['order_id'] = 'Please select an order.';
+            if ($order_id === 0 || $seller_id === 0) $errors['order_id'] = 'Please select an order.';
             if ($agent_id === 0) $errors['agent_id'] = 'Please select an agent.';
             if ($zone_id  === 0) $errors['zone_id']  = 'Please select a zone.';
 
             if (empty($errors)) {
-                delivery_assignment_insert($this->conn, $order_id, $agent_id, $zone_id);
-                set_flash('success', 'Agent assigned to order #' . $order_id . ' successfully.');
+                delivery_assignment_insert($this->conn, $order_id, $agent_id, $zone_id, $seller_id);
+                set_flash('success', 'Agent assigned to order #' . $order_id . ' (seller #' . $seller_id . ') successfully.');
                 redirect(BASE_URL . '?c=delivery&a=dispatch');
             }
         }

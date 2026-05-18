@@ -8,8 +8,8 @@ session_start();
 header('Content-Type: application/json');
 
 require_once dirname(__DIR__) . '/config/db.php';
-require_once APP . '/models/CouponModel.php';
-
+foreach (glob(APP . '/models/*.php') as $_mf) require_once $_mf;
+foreach (glob(APP . '/models/*/*.php') as $_mf) require_once $_mf;
 // Require logged-in seller
 if (!isset($_SESSION['uid']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'seller') {
     echo json_encode(array(

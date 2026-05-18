@@ -18,6 +18,7 @@ include APP . '/views/layouts/header.php';
             <thead>
                 <tr>
                     <th>Order ID</th>
+                    <th>Seller</th>
                     <th>Agent</th>
                     <th>Vehicle</th>
                     <th>Zone</th>
@@ -48,6 +49,7 @@ include APP . '/views/layouts/header.php';
                 ?>
                 <tr id="row-<?php echo (int)$d['assignment_id']; ?>">
                     <td>#<?php echo (int)$d['order_id']; ?></td>
+                    <td><?php echo sanitize($d['shop_name'] ?? '—'); ?></td>
                     <td>
                         <?php echo sanitize($d['agent_name']); ?><br>
                         <small class="text-muted"><?php echo sanitize($d['agent_phone']); ?></small>
@@ -66,13 +68,26 @@ include APP . '/views/layouts/header.php';
                         <select class="form-control status-select"
                                 id="select-<?php echo (int)$d['assignment_id']; ?>"
                                 data-prev="<?php echo sanitize($d['status']); ?>"
-                                onchange="ajaxUpdateStatus(<?php echo (int)$d['assignment_id']; ?>, this)">
+                                onchange="onStatusChange(<?php echo (int)$d['assignment_id']; ?>, this)">
                             <option value="assigned"   <?php echo ($d['status'] === 'assigned')   ? 'selected' : ''; ?>>Assigned</option>
                             <option value="picked_up"  <?php echo ($d['status'] === 'picked_up')  ? 'selected' : ''; ?>>Picked Up</option>
                             <option value="in_transit" <?php echo ($d['status'] === 'in_transit') ? 'selected' : ''; ?>>In Transit</option>
                             <option value="delivered"  <?php echo ($d['status'] === 'delivered')  ? 'selected' : ''; ?>>Delivered</option>
                             <option value="failed"     <?php echo ($d['status'] === 'failed')     ? 'selected' : ''; ?>>Failed</option>
                         </select>
+                        <div id="fail-box-<?php echo (int)$d['assignment_id']; ?>" style="display:none;margin-top:6px;">
+                            <input type="text"
+                                   id="fail-reason-<?php echo (int)$d['assignment_id']; ?>"
+                                   class="form-control form-control-sm"
+                                   placeholder="Reason for failure (required)"
+                                   style="margin-bottom:4px;">
+                            <button type="button"
+                                    class="btn btn-sm btn-danger"
+                                    onclick="submitFailure(<?php echo (int)$d['assignment_id']; ?>)">Save</button>
+                            <button type="button"
+                                    class="btn btn-sm btn-secondary"
+                                    onclick="cancelFailure(<?php echo (int)$d['assignment_id']; ?>)">Cancel</button>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -81,5 +96,97 @@ include APP . '/views/layouts/header.php';
         <?php endif; ?>
     </div>
 </div>
+
+<script>
+function onStatusChange(assignmentId, selectEl) {
+    var newStatus = selectEl.value;
+    // For 'failed', reveal the inline reason input instead of submitting.
+    if (newStatus === 'failed') {
+        var box = document.getElementById('fail-box-' + assignmentId);
+        if (box) {
+            box.style.display = 'block';
+            var input = document.getElementById('fail-reason-' + assignmentId);
+            if (input) { input.focus(); }
+        }
+        return;
+    }
+    ajaxUpdateStatus(assignmentId, selectEl, '');
+}
+
+function cancelFailure(assignmentId) {
+    var box = document.getElementById('fail-box-' + assignmentId);
+    var sel = document.getElementById('select-' + assignmentId);
+    if (box) { box.style.display = 'none'; }
+    if (sel) { sel.value = sel.getAttribute('data-prev') || 'assigned'; }
+}
+
+function submitFailure(assignmentId) {
+    var input = document.getElementById('fail-reason-' + assignmentId);
+    var sel   = document.getElementById('select-' + assignmentId);
+    var reason = input ? input.value.trim() : '';
+    if (reason === '') {
+        if (input) { input.focus(); input.style.borderColor = '#dc3545'; }
+        return;
+    }
+    var box = document.getElementById('fail-box-' + assignmentId);
+    if (box) { box.style.display = 'none'; }
+    ajaxUpdateStatus(assignmentId, sel, reason);
+}
+
+function ajaxUpdateStatus(assignmentId, selectEl, failureReason) {
+    var newStatus = selectEl.value;
+    var prev      = selectEl.getAttribute('data-prev') || '';
+    if (failureReason === undefined || failureReason === null) { failureReason = ''; }
+
+    selectEl.disabled = true;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '<?php echo BASE_URL; ?>../ajax/delivery_update_status.php', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) { return; }
+        selectEl.disabled = false;
+        if (xhr.status !== 200) {
+            alert('Network error. Status not saved.');
+            selectEl.value = prev;
+            return;
+        }
+        var resp;
+        try { resp = JSON.parse(xhr.responseText); }
+        catch (e) {
+            alert('Server error. Status not saved.');
+            selectEl.value = prev;
+            return;
+        }
+        if (!resp.success) {
+            alert(resp.message || 'Could not save status.');
+            selectEl.value = prev;
+            return;
+        }
+
+        selectEl.setAttribute('data-prev', newStatus);
+
+        var row = document.getElementById('row-' + assignmentId);
+        // 'delivered' and 'failed' leave the active list — remove the row.
+        if (newStatus === 'delivered' || newStatus === 'failed') {
+            if (row && row.parentNode) { row.parentNode.removeChild(row); }
+            return;
+        }
+        if (row) {
+            var badge = row.querySelector('.status-badge');
+            if (badge) {
+                badge.textContent = newStatus.replace('_', ' ');
+                badge.className = 'badge status-badge ' + (
+                    newStatus === 'picked_up'  ? 'badge-warning' :
+                    'badge-info'
+                );
+            }
+        }
+    };
+    var body = 'assignment_id=' + encodeURIComponent(assignmentId)
+             + '&status=' + encodeURIComponent(newStatus)
+             + '&failure_reason=' + encodeURIComponent(failureReason);
+    xhr.send(body);
+}
+</script>
 
 <?php include APP . '/views/layouts/footer.php'; ?>

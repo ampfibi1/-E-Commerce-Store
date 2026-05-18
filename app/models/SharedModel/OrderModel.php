@@ -72,8 +72,15 @@ function order_get_by_customer($conn, $customer_id) {
 }
 
 function order_get_by_id($conn, $order_id) {
+    // Returns the order row plus zone + customer info. Delivery info is
+    // intentionally NOT joined here because migration 007 made
+    // delivery_assignments per-seller: one order can have multiple
+    // assignment rows, so joining here would either pick one arbitrarily
+    // (the previous bug) or duplicate the order row. Use
+    // order_get_delivery_assignments() to fetch all of them.
     $stmt = mysqli_prepare($conn,
-        "SELECT o.*, z.zone_name, u.name AS customer_name, u.email AS customer_email, u.phone AS customer_phone
+        "SELECT o.*, z.zone_name,
+                u.name AS customer_name, u.email AS customer_email, u.phone AS customer_phone
          FROM orders o
          JOIN delivery_zones z ON o.zone_id      = z.id
          JOIN users          u ON o.customer_id  = u.id
@@ -86,6 +93,36 @@ function order_get_by_id($conn, $order_id) {
     $row    = mysqli_fetch_assoc($result);
     mysqli_stmt_close($stmt);
     return $row;
+}
+
+// Returns all delivery_assignments for an order, one row per seller's
+// shipment. Each row includes the agent and shop names so the customer
+// can see each parcel's courier status independently.
+function order_get_delivery_assignments($conn, $order_id) {
+    $stmt = mysqli_prepare($conn,
+        "SELECT da.id AS assignment_id,
+                da.seller_id,
+                da.status        AS delivery_status,
+                da.updated_at    AS delivery_updated_at,
+                da.failure_reason,
+                ag.name          AS delivery_agent_name,
+                s.shop_name
+         FROM delivery_assignments da
+         LEFT JOIN delivery_agents ag ON ag.id = da.agent_id
+         LEFT JOIN sellers         s  ON s.id  = da.seller_id
+         WHERE da.order_id = ?
+         ORDER BY da.updated_at DESC, da.id DESC"
+    );
+    if (!$stmt) { return array(); }
+    mysqli_stmt_bind_param($stmt, "i", $order_id);
+    mysqli_stmt_execute($stmt);
+    $res  = mysqli_stmt_get_result($stmt);
+    $rows = array();
+    while ($r = mysqli_fetch_assoc($res)) {
+        $rows[] = $r;
+    }
+    mysqli_stmt_close($stmt);
+    return $rows;
 }
 
 function order_get_items($conn, $order_id) {
@@ -167,7 +204,52 @@ function order_item_update_status($conn, $item_id, $status, $note = '') {
     mysqli_stmt_bind_param($stmt, "ssi", $status, $note, $item_id);
     $ok = mysqli_stmt_execute($stmt);
     mysqli_stmt_close($stmt);
+
+    if ($ok) {
+        // Roll up: parent order.status = the "lowest" item_status across all
+        // its items, so confirming the last pending item flips the order to
+        // confirmed, shipping the last confirmed item flips it to shipped, etc.
+        $stmt = mysqli_prepare($conn, "SELECT order_id FROM order_items WHERE id = ?");
+        mysqli_stmt_bind_param($stmt, "i", $item_id);
+        mysqli_stmt_execute($stmt);
+        $res = mysqli_stmt_get_result($stmt);
+        $row = mysqli_fetch_assoc($res);
+        mysqli_stmt_close($stmt);
+        if ($row) {
+            order_recompute_status($conn, (int)$row['order_id']);
+        }
+    }
     return $ok;
+}
+
+// Recompute orders.status from the current item_status values.
+// Rule: take the earliest-stage status across all items
+// (pending < confirmed < shipped < delivered).
+function order_recompute_status($conn, $order_id) {
+    $stmt = mysqli_prepare($conn,
+        "SELECT MIN(FIELD(item_status,'pending','confirmed','shipped','delivered')) AS min_rank
+         FROM order_items WHERE order_id = ?"
+    );
+    mysqli_stmt_bind_param($stmt, "i", $order_id);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($res);
+    mysqli_stmt_close($stmt);
+    if (!$row || $row['min_rank'] === null) { return; }
+
+    $map = array(1 => 'pending', 2 => 'confirmed', 3 => 'shipped', 4 => 'delivered');
+    $new_status = isset($map[(int)$row['min_rank']]) ? $map[(int)$row['min_rank']] : null;
+    if (!$new_status) { return; }
+
+    // Don't downgrade orders that have already moved beyond the item lifecycle
+    // (e.g. cancelled, returned).
+    $stmt = mysqli_prepare($conn,
+        "UPDATE orders SET status = ?
+         WHERE id = ? AND status NOT IN ('cancelled','return_requested','returned')"
+    );
+    mysqli_stmt_bind_param($stmt, "si", $new_status, $order_id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
 }
 
 function order_can_cancel($conn, $order_id) {

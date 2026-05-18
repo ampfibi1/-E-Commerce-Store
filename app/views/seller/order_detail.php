@@ -48,7 +48,7 @@ include APP . '/views/layouts/header.php';
             <table class="info-table">
                 <tr>
                     <th>Name</th>
-                    <td><?php echo sanitize($customer['name']); ?></td>
+                    <td><?php echo sanitize($order['customer_name'] ?? ''); ?></td>
                 </tr>
                 <tr>
                     <th>Shipping Address</th>
@@ -56,7 +56,7 @@ include APP . '/views/layouts/header.php';
                 </tr>
                 <tr>
                     <th>Zone</th>
-                    <td><?php echo sanitize($order['zone']); ?></td>
+                    <td><?php echo sanitize($order['zone_name'] ?? ''); ?></td>
                 </tr>
             </table>
         </div>
@@ -81,9 +81,9 @@ include APP . '/views/layouts/header.php';
                 <?php foreach ($items as $item): ?>
                 <tr>
                     <td><?php echo sanitize($item['product_name']); ?></td>
-                    <td><?php echo (int)$item['qty']; ?></td>
+                    <td><?php echo (int)$item['quantity']; ?></td>
                     <td>&#2547; <?php echo number_format($item['unit_price'], 2); ?></td>
-                    <td>&#2547; <?php echo number_format($item['qty'] * $item['unit_price'], 2); ?></td>
+                    <td>&#2547; <?php echo number_format($item['quantity'] * $item['unit_price'], 2); ?></td>
                     <td>
                         <?php
                         $itemStatusClass = 'badge-secondary';
@@ -95,7 +95,7 @@ include APP . '/views/layouts/header.php';
                         <span class="badge <?php echo $itemStatusClass; ?>"><?php echo sanitize(ucfirst($item['item_status'])); ?></span>
                     </td>
                     <td>
-                        <?php echo !empty($item['tracking_note']) ? sanitize($item['tracking_note']) : '<span class="text-muted">N/A</span>'; ?>
+                        <?php echo !empty($item['status_note']) ? sanitize($item['status_note']) : '<span class="text-muted">N/A</span>'; ?>
                     </td>
                     <td>
                         <?php if ($item['item_status'] === 'pending'): ?>
@@ -134,7 +134,7 @@ include APP . '/views/layouts/header.php';
             <?php
             $sellerTotal = 0;
             foreach ($items as $item) {
-                $sellerTotal += $item['qty'] * $item['unit_price'];
+                $sellerTotal += $item['quantity'] * $item['unit_price'];
             }
             ?>
             <strong>Your Items Total: &#2547; <?php echo number_format($sellerTotal, 2); ?></strong>

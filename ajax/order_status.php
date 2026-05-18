@@ -6,8 +6,8 @@ session_start();
 header('Content-Type: application/json');
 
 require_once dirname(__DIR__) . '/config/db.php';
-require_once APP . '/models/OrderModel.php';
-
+foreach (glob(APP . '/models/*.php') as $_mf) require_once $_mf;
+foreach (glob(APP . '/models/*/*.php') as $_mf) require_once $_mf;
 // Require a logged-in user
 if (!isset($_SESSION['uid'])) {
     echo json_encode(array(

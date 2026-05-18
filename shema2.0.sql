@@ -1,13 +1,19 @@
 -- ============================================================
--- ShopHub — shema2.0.sql
--- Updated schema: adds customer_addresses table and
--- zone_id + delivery_fee columns to orders (required for
--- Customer checkout feature).
+-- ShopHub — shema2.0.sql  (CONSOLIDATED — fresh install only)
 --
--- USE THIS FILE if setting up from scratch.
--- If you already imported shema.sql, run the migrations instead:
---   mysql -u root ecommerce < migrations/001_add_customer_addresses.sql
---   mysql -u root ecommerce < migrations/002_add_zone_delivery_fee_to_orders.sql
+-- Use this file for a clean DB install. It already includes
+-- everything that migrations/001 through 007 add, so you do
+-- NOT need to run any migration files on top of this.
+--
+-- What's bundled:
+--   001  customer_addresses table
+--   002  orders.zone_id + orders.delivery_fee
+--   003  delivery_agents.name/status + delivery_assignments.zone_id/
+--        failure_reason/updated_at + delivery_manager seed user
+--   004  delivery_zones.created_at
+--   005  disputes.seller_response / seller_responded_at / seller_action
+--   006  order_items.status_note
+--   007  delivery_assignments.seller_id + composite index
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS ecommerce;
@@ -26,7 +32,7 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Customer saved addresses
+-- Customer saved addresses (migration 001)
 CREATE TABLE customer_addresses (
     id              INT AUTO_INCREMENT PRIMARY KEY,
     customer_id     INT             NOT NULL,
@@ -98,15 +104,16 @@ CREATE TABLE coupons (
     is_active BOOLEAN DEFAULT TRUE
 );
 
--- Delivery zones table
+-- Delivery zones table (migration 004 adds created_at)
 CREATE TABLE delivery_zones (
     id INT AUTO_INCREMENT PRIMARY KEY,
     zone_name VARCHAR(100) NOT NULL,
     delivery_fee DECIMAL(10,2) NOT NULL,
-    estimated_days INT NOT NULL
+    estimated_days INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Orders table (includes zone_id + delivery_fee for checkout)
+-- Orders table (migration 002 adds zone_id + delivery_fee)
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     customer_id INT NOT NULL,
@@ -125,7 +132,7 @@ CREATE TABLE orders (
     FOREIGN KEY (coupon_id) REFERENCES coupons(id)
 );
 
--- Order items table
+-- Order items table (migration 006 adds status_note)
 CREATE TABLE order_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
@@ -134,32 +141,45 @@ CREATE TABLE order_items (
     quantity INT NOT NULL,
     unit_price DECIMAL(10,2) NOT NULL,
     item_status ENUM('pending', 'confirmed', 'shipped', 'delivered') DEFAULT 'pending',
+    status_note TEXT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (product_id) REFERENCES products(id),
     FOREIGN KEY (seller_id) REFERENCES sellers(id)
 );
 
--- Delivery agents table
+-- Delivery agents table (migration 003 adds name + status; user_id nullable)
 CREATE TABLE delivery_agents (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL DEFAULT '',
+    user_id INT NULL,
     vehicle_type VARCHAR(50),
     phone VARCHAR(20),
+    status ENUM('active','inactive') NOT NULL DEFAULT 'active',
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- Delivery assignments table
+--   migration 003: adds zone_id + failure_reason + updated_at
+--   migration 007: adds seller_id + composite index (one row per seller's
+--                  shipment within an order)
 CREATE TABLE delivery_assignments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
+    seller_id INT NULL,
     agent_id INT NOT NULL,
+    zone_id INT NULL,
     assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     status ENUM('assigned', 'picked_up', 'in_transit', 'delivered', 'failed'),
+    failure_reason TEXT NULL,
     delivery_zone VARCHAR(100),
+    INDEX idx_da_order_seller (order_id, seller_id),
     FOREIGN KEY (order_id) REFERENCES orders(id),
-    FOREIGN KEY (agent_id) REFERENCES delivery_agents(id)
+    FOREIGN KEY (agent_id) REFERENCES delivery_agents(id),
+    CONSTRAINT fk_delivery_assignments_zone
+        FOREIGN KEY (zone_id) REFERENCES delivery_zones(id) ON DELETE SET NULL
 );
 
 -- Reviews table
@@ -201,13 +221,17 @@ CREATE TABLE return_requests (
     FOREIGN KEY (customer_id) REFERENCES users(id)
 );
 
--- Disputes table
+-- Disputes table (migration 005 adds seller_response / seller_responded_at /
+-- seller_action so a seller can Accept/Reject and reply to a complaint)
 CREATE TABLE disputes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     customer_id INT NOT NULL,
     seller_id INT NOT NULL,
     order_id INT NOT NULL,
     description TEXT,
+    seller_response TEXT NULL,
+    seller_responded_at TIMESTAMP NULL DEFAULT NULL,
+    seller_action ENUM('none','accepted','rejected') NOT NULL DEFAULT 'none',
     status ENUM('open', 'resolved') DEFAULT 'open',
     admin_note TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -223,3 +247,12 @@ CREATE TABLE announcements (
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ============================================================
+-- Seed: delivery manager login (from migration 003)
+-- Email: delivery@shophub.com   Password: delivery123
+-- ============================================================
+INSERT IGNORE INTO users (name, email, password_hash, role) VALUES
+    ('Delivery Manager', 'delivery@shophub.com',
+     '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uSccAt/m2',
+     'delivery_manager');

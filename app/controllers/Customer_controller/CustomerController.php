@@ -337,6 +337,7 @@ class CustomerController {
             $action     = isset($_POST['action'])     ? $_POST['action']     : '';
             $product_id = isset($_POST['product_id']) ? (int)$_POST['product_id'] : 0;
             $qty        = isset($_POST['qty'])        ? (int)$_POST['qty']   : 1;
+            if ($qty < 1) { $qty = 1; }
 
             if ($action === 'add' && $product_id > 0) {
                 $product = product_get_by_id($this->conn, $product_id);
@@ -580,7 +581,8 @@ class CustomerController {
             }
         }
 
-        $items = order_get_items($this->conn, $order_id);
+        $items                = order_get_items($this->conn, $order_id);
+        $delivery_assignments = order_get_delivery_assignments($this->conn, $order_id);
         include APP . '/views/customer/order_detail.php';
     }
 
@@ -606,18 +608,27 @@ class CustomerController {
         $errors = array();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $seller_id   = isset($_POST['seller_id'])   ? (int)$_POST['seller_id']   : 0;
             $order_id    = isset($_POST['order_id'])    ? (int)$_POST['order_id']    : 0;
+            $seller_id   = isset($_POST['seller_id'])   ? (int)$_POST['seller_id']   : 0;
             $description = isset($_POST['description']) ? trim($_POST['description']) : '';
 
-            if ($seller_id <= 0) {
-                $errors['seller_id'] = 'Please select a seller.';
-            }
             if ($order_id <= 0) {
-                $errors['order_id'] = 'Please select the related order.';
+                $errors['order_id']  = 'Please select the related order.';
+            }
+            if ($seller_id <= 0) {
+                $errors['seller_id'] = 'Please select the seller this dispute is about.';
             }
             if ($description === '') {
                 $errors['description'] = 'Please describe the issue.';
+            }
+
+            // Anti-tamper: confirm the seller really belongs to this order
+            // for this customer. Without this, a customer could change the
+            // hidden seller_id in DevTools and file disputes against any
+            // seller, who would then see complaints about orders they
+            // never fulfilled.
+            if (empty($errors) && !dispute_seller_in_order($this->conn, $order_id, $uid, $seller_id)) {
+                $errors['seller_id'] = 'The selected seller is not part of this order.';
             }
 
             if (empty($errors)) {
@@ -634,6 +645,16 @@ class CustomerController {
 
         $disputes = dispute_get_by_customer($this->conn, $uid);
         $orders   = order_get_by_customer($this->conn, $uid);
+
+        // Map of order_id => list of {seller_id, shop_name} for that order,
+        // used by the dispute form's seller dropdown (filtered by chosen order).
+        $sellers_by_order = array();
+        foreach ($orders as $ord) {
+            $oid = isset($ord['order_id']) ? (int)$ord['order_id'] : (isset($ord['id']) ? (int)$ord['id'] : 0);
+            if ($oid > 0) {
+                $sellers_by_order[$oid] = dispute_sellers_for_order($this->conn, $oid, $uid);
+            }
+        }
 
         include APP . '/views/customer/disputes.php';
     }
