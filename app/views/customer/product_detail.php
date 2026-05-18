@@ -103,16 +103,13 @@
             <div class="form-group" style="margin:0; display:flex; align-items:center; gap:0.5rem;">
                 <label class="form-label" style="margin:0; white-space:nowrap;">Qty:</label>
                 <input
-                    type="number"
+                    type="text"
                     name="qty"
                     value="1"
-                    min="1"
-                    step="1"
-                    max="<?php echo (int)$product['stock_qty']; ?>"
-                    required
                     class="qty-input"
                     id="detailQty"
-                    oninput="if(this.value < 1 || this.value === '') this.value = 1;"
+                    data-max-stock="<?php echo (int)$product['stock_qty']; ?>"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, ''); if (this.value === '' || parseInt(this.value, 10) < 1) this.value = 1;"
                 >
             </div>
             <button type="submit" class="btn btn-primary">Add to Cart</button>

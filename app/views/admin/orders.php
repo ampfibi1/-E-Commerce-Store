@@ -18,9 +18,8 @@ $customer = $_SESSION['customer'] ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orders</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>../app/views/admin/CSS/allmainContent.css">
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>../app/views/admin/CSS/filter.css">
-</head>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/style.css">
+
 <body>
 
 <?php include 'sidebar.php'; ?>
@@ -60,8 +59,8 @@ $customer = $_SESSION['customer'] ?? '';
 
             </select>
 
-            <input type="date" name="date_from" value="<?= $date_from ?>">
-            <input type="date" name="date_to" value="<?= $date_to ?>">
+            <input type="text" name="date_from" value="<?= $date_from ?>" placeholder="YYYY-MM-DD">
+            <input type="text" name="date_to" value="<?= $date_to ?>" placeholder="YYYY-MM-DD">
 
             <select name="seller">
                 <option value="">All Sellers</option>

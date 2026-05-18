@@ -49,11 +49,10 @@
                             <form method="POST" action="<?php echo BASE_URL; ?>?c=customer&a=cart" style="display:flex; gap:4px; align-items:center;">
                                 <input type="hidden" name="action" value="update">
                                 <input type="hidden" name="product_id" value="<?php echo (int)$item['product_id']; ?>">
-                                <input type="number" name="qty" value="<?php echo (int)$item['qty']; ?>"
-                                       min="1" step="1" required
+                                <input type="text" name="qty" value="<?php echo (int)$item['qty']; ?>"
                                        class="qty-input"
                                        id="qty-<?php echo (int)$item['product_id']; ?>"
-                                       oninput="if(this.value < 1 || this.value === '') this.value = 1;">
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, ''); if (this.value === '' || parseInt(this.value, 10) < 1) this.value = 1;">
                                 <button type="submit" class="btn btn-secondary btn-small">Update</button>
                             </form>
                         </td>

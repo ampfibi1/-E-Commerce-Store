@@ -9,8 +9,8 @@ $coupons = $_SESSION['coupons'] ?? [];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coupons</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>../app/views/admin/CSS/allmainContent.css">
-</head>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/style.css">
+
 <body>
     <?php include 'sidebar.php'; ?>
     <div class="main_content" >
@@ -18,10 +18,10 @@ $coupons = $_SESSION['coupons'] ?? [];
         <form action="<?php echo BASE_URL; ?>?c=admin&amp;a=coupons" method="post"
             style="background: white; padding: 20px;">
             <h3>Add Coupon</h3>
-            <input type="text" name="code" placeholder="Code" required>
-            <input type="number" name="discount_pct" placeholder="Discount %" required>
-            <input type="number" name="max_uses" placeholder="Max Uses" required>
-            <input type="datetime-local" name="valid_until" required>
+            <input type="text" name="code" placeholder="Code">
+            <input type="text" name="discount_pct" placeholder="Discount %">
+            <input type="text" name="max_uses" placeholder="Max Uses">
+            <input type="text" name="valid_until" placeholder="YYYY-MM-DD HH:MM">
             <button type="submit" name="add_coupon">Add</button>
         </form>
         <table>

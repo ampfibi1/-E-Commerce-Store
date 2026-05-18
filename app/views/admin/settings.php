@@ -9,9 +9,8 @@ $sellers = $_SESSION['commission_sellers'] ?? [];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>../app/views/admin/CSS/allmainContent.css">
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>../app/views/admin/CSS/settings.css">
-</head>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/style.css">
+
 <body>
     <?php include 'sidebar.php'; ?>
     <div class="main_content" >
@@ -30,7 +29,7 @@ $sellers = $_SESSION['commission_sellers'] ?? [];
                 <td>
                     <form action="<?php echo BASE_URL; ?>?c=admin&amp;a=settings" method="post">
                         <input type="hidden" name="seller_id" value="<?= $seller['id'] ?>">
-                        <input type="number" step="0.01" name="commission_rate" value="<?= $seller['commission_rate'] ?>" required>
+                        <input type="text" name="commission_rate" value="<?= $seller['commission_rate'] ?>" placeholder="e.g. 10.00">
                         <button type="submit" name="update_commission">Update</button>
                     </form>
                 </td>

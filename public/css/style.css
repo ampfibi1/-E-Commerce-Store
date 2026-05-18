@@ -2249,3 +2249,114 @@ footer {
     object-fit: cover;
     border-radius: 8px;
 }
+
+/* ============================================================
+ * Admin panel styles — migrated from app/views/admin/CSS/*
+ * (was: allmainContent.css + announcements.css + categories.css
+ *       + dashboard.css + filter.css + sellers.css + settings.css)
+ * Folded into public/css/style.css for rule 6 compliance.
+ * ============================================================ */
+
+/* --- admin: allmainContent.css --- */
+.main_content {
+    margin-left: 250px; 
+    padding: 20px; 
+    background-color: #f4f4f4;
+}
+.sidebar {
+    width: 200px;
+    background-color: #f0f0f0;
+    padding: 20px;
+    height: 100vh;
+    position: fixed;
+}
+table { width: 100%; border-collapse: collapse; background: white; }
+th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+/* --- admin: announcements.css --- */
+form { 
+    background: white; 
+    padding: 20px; 
+    margin-bottom: 20px; 
+}
+input, textarea, button { 
+    padding: 10px; 
+    margin: 5px 0; 
+}
+input, textarea { width: 100%; }
+button { 
+    background: #007bff; 
+    color: white; 
+    border: none; 
+    cursor: pointer; 
+}
+.announcement { 
+    background: white; 
+    padding: 20px; 
+    margin-bottom: 10px; 
+    border-left: 5px solid #007bff; 
+}
+/* --- admin: categories.css --- */
+form { 
+    background: white; 
+    padding: 20px; 
+    margin-bottom: 20px; 
+}
+input, textarea, select { 
+    width: 100%; 
+    padding: 10px; 
+    margin: 5px 0; 
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    background: white; 
+    margin-bottom: 20px; 
+}
+
+th, td { 
+    padding: 10px; 
+    border: 1px solid #ddd; 
+    text-align: left; 
+}
+
+/* --- admin: dashboard.css --- */
+.stats { 
+    display: flex; 
+    gap: 20px; 
+}
+.stat {
+    background: white; 
+    padding: 20px; 
+    border-radius: 5px; 
+    flex: 1; 
+    text-align: center; 
+}
+    
+/* --- admin: filter.css --- */
+input, select { padding: 5px; margin-right: 10px; }
+.filters { background: white; padding: 20px; margin-bottom: 20px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+th { background-color: #f2f2f2; }
+.btn { width: 100px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+.btn:hover { background-color: #45a049; }
+/* --- admin: sellers.css --- */
+table{
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid black;
+}
+
+th, td{
+    border: 1px solid black;
+    padding: 10px;
+}
+/* --- admin: settings.css --- */
+table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        form { display: inline; }
+        input { width: 60px; padding: 5px; }
+        button { padding: 5px 10px; background: #007bff; color: white; border: none; cursor: pointer; }

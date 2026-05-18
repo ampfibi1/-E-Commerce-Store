@@ -37,7 +37,7 @@ include APP . '/views/layouts/header.php';
                 <form method="POST" action="<?php echo BASE_URL; ?>?c=customer&a=cart" style="display:flex;gap:6px;align-items:center;">
                     <input type="hidden" name="action" value="add">
                     <input type="hidden" name="product_id" value="<?php echo (int)$product['id']; ?>">
-                    <input type="number" name="qty" value="1" min="1" step="1" max="<?php echo (int)$product['stock_qty']; ?>" required class="form-control" style="width:70px;" oninput="if(this.value < 1 || this.value === '') this.value = 1;">
+                    <input type="text" name="qty" value="1" class="form-control" style="width:70px;" data-max-stock="<?php echo (int)$product['stock_qty']; ?>" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if (this.value === '' || parseInt(this.value, 10) < 1) this.value = 1;">
                     <button type="submit" class="btn btn-primary" <?php echo ((int)$product['stock_qty'] <= 0 || !(int)$product['is_available']) ? 'disabled' : ''; ?>>Add to Cart</button>
                 </form>
                 <button id="wishlistBtn"

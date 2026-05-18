@@ -15,14 +15,14 @@ $month = $_SESSION['report_month'] ?? date('Y-m');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>../app/views/admin/CSS/allmainContent.css">
-</head>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/style.css">
+
 <body>
     <?php include 'sidebar.php'; ?>
     <div class="main_content" >
         <h1>Monthly Reports</h1>
         <form action="<?php echo BASE_URL; ?>?c=admin&amp;a=reports" method="post">
-            <input type="month" name="month" value="<?= $month ?>" required>
+            <input type="text" name="month" value="<?= $month ?>" placeholder="YYYY-MM">
             <input type="submit" value="Generate Report">
         </form>
         <div class="report">

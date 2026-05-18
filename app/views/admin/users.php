@@ -12,9 +12,8 @@ $role = $_SESSION['users_role'] ?? '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Users</title>
 
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>../app/views/admin/CSS/filter.css">
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>../app/views/admin/CSS/allmainContent.css">
-</head>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/style.css">
+
 <body>
 
 <?php include 'sidebar.php'; ?>

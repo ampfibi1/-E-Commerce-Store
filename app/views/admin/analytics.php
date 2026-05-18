@@ -17,8 +17,8 @@ $data = $_SESSION['analytics'] ?? [
         .stats { display: flex; gap: 20px; margin-bottom: 20px; }
         .stat { background: white; padding: 20px; border-radius: 5px; flex: 1; text-align: center; }
     </style>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>../app/views/admin/CSS/allmainContent.css">
-</head>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/style.css">
+
 <body>
     <?php include 'sidebar.php'; ?>
     <div class="main_content" >
