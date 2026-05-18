@@ -91,13 +91,13 @@
 
         <div class="form-group">
             <label class="form-label" for="order_id">Related Order</label>
-            <select id="order_id" name="order_id" class="form-control">
+            <select id="order_id" name="order_id" class="form-control" onchange="filterSellersByOrder()">
                 <option value="">-- Select an order --</option>
                 <?php if (!empty($orders)): ?>
                     <?php foreach ($orders as $ord): ?>
                     <?php $oid = isset($ord['order_id']) ? (int)$ord['order_id'] : (isset($ord['id']) ? (int)$ord['id'] : 0); ?>
                     <option value="<?php echo $oid; ?>"
-                        <?php echo (isset($old['order_id']) && (int)$old['order_id'] === $oid) ? 'selected' : ''; ?>>
+                        <?php echo (isset($_POST['order_id']) && (int)$_POST['order_id'] === $oid) ? 'selected' : ''; ?>>
                         Order #<?php echo $oid; ?>
                         &mdash;
                         <?php echo sanitize(date('d M Y', strtotime($ord['created_at']))); ?>
@@ -110,6 +110,20 @@
             <span class="err" id="err_order_id">
                 <?php echo (!empty($errors['order_id'])) ? sanitize($errors['order_id']) : ''; ?>
             </span>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="seller_id">Seller this dispute is about</label>
+            <select id="seller_id" name="seller_id" class="form-control">
+                <option value="">-- Pick an order first --</option>
+            </select>
+            <span class="err" id="err_seller_id">
+                <?php echo (!empty($errors['seller_id'])) ? sanitize($errors['seller_id']) : ''; ?>
+            </span>
+            <small class="text-muted">
+                Some orders contain items from more than one seller. Pick the seller
+                whose item(s) the complaint is about.
+            </small>
         </div>
 
         <div class="form-group">
@@ -131,5 +145,57 @@
 
     </form>
 </div>
+
+<script>
+// Map of order_id -> [{seller_id, shop_name}, ...]. Built server-side from
+// $sellers_by_order so the seller dropdown only ever offers sellers who
+// actually appear in the currently-selected order.
+var sellersByOrder = <?php echo json_encode($sellers_by_order ?? array()); ?>;
+var prevSellerId   = <?php echo isset($_POST['seller_id']) ? (int)$_POST['seller_id'] : 0; ?>;
+
+function filterSellersByOrder() {
+    var orderSel  = document.getElementById('order_id');
+    var sellerSel = document.getElementById('seller_id');
+    if (!orderSel || !sellerSel) { return; }
+    var oid = orderSel.value;
+    sellerSel.innerHTML = '';
+
+    if (!oid || !sellersByOrder[oid] || sellersByOrder[oid].length === 0) {
+        var ph = document.createElement('option');
+        ph.value = '';
+        ph.textContent = '-- Pick an order first --';
+        sellerSel.appendChild(ph);
+        return;
+    }
+
+    var sellers = sellersByOrder[oid];
+    // If there's exactly one seller, auto-select them and label it clearly.
+    if (sellers.length === 1) {
+        var only = document.createElement('option');
+        only.value = sellers[0].seller_id;
+        only.textContent = sellers[0].shop_name;
+        only.selected = true;
+        sellerSel.appendChild(only);
+        return;
+    }
+
+    var placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = '-- Select a seller --';
+    sellerSel.appendChild(placeholder);
+
+    for (var i = 0; i < sellers.length; i++) {
+        var o = document.createElement('option');
+        o.value = sellers[i].seller_id;
+        o.textContent = sellers[i].shop_name;
+        if (parseInt(o.value, 10) === prevSellerId) { o.selected = true; }
+        sellerSel.appendChild(o);
+    }
+}
+
+// Run once on page load so a post-validation re-render (where order_id is
+// already selected) repopulates the seller list correctly.
+filterSellersByOrder();
+</script>
 
 <?php include APP . '/views/layouts/footer.php'; ?>

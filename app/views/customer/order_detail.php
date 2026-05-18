@@ -48,11 +48,10 @@ $page_title = 'Order #' . $oid;
             <?php endif; ?>
         </div>
         <?php endif; ?>
-        <?php if (!empty($order['delivery_status'])): ?>
-        <div>
-            <span class="text-muted">Delivery Update:</span><br>
+        <?php if (!empty($delivery_assignments)): ?>
+        <div style="grid-column:1 / -1;">
+            <span class="text-muted">Delivery Updates:</span>
             <?php
-            $ds = strtolower($order['delivery_status']);
             $ds_label_map = array(
                 'assigned'   => 'Assigned to courier',
                 'picked_up'  => 'Picked up by courier',
@@ -65,18 +64,33 @@ $page_title = 'Order #' . $oid;
                 'in_transit' => '#fd7e14', 'delivered' => '#28a745',
                 'failed' => '#dc3545',
             );
-            $ds_label = isset($ds_label_map[$ds]) ? $ds_label_map[$ds] : ucfirst($ds);
-            $ds_color = isset($ds_color_map[$ds]) ? $ds_color_map[$ds] : '#6c757d';
             ?>
-            <strong style="color:<?php echo $ds_color; ?>;"><?php echo sanitize($ds_label); ?></strong>
-            <?php if (!empty($order['delivery_agent_name'])): ?>
-                <div class="text-muted" style="font-size:0.85rem;">
-                    Agent: <?php echo sanitize($order['delivery_agent_name']); ?>
-                    <?php if (!empty($order['delivery_updated_at'])): ?>
-                        &middot; <?php echo sanitize(date('d M, H:i', strtotime($order['delivery_updated_at']))); ?>
+            <?php foreach ($delivery_assignments as $da): ?>
+                <?php
+                $ds       = strtolower($da['delivery_status'] ?? '');
+                $ds_label = isset($ds_label_map[$ds]) ? $ds_label_map[$ds] : ucfirst($ds);
+                $ds_color = isset($ds_color_map[$ds]) ? $ds_color_map[$ds] : '#6c757d';
+                ?>
+                <div style="border-left:3px solid <?php echo $ds_color; ?>; padding:0.5rem 0.75rem; margin-top:0.5rem; background:#fafbfc; border-radius:3px;">
+                    <strong style="color:<?php echo $ds_color; ?>;"><?php echo sanitize($ds_label); ?></strong>
+                    <span class="text-muted"> &mdash; <?php echo sanitize($da['shop_name'] ?? 'seller'); ?></span>
+                    <?php if (!empty($da['delivery_agent_name']) || !empty($da['delivery_updated_at'])): ?>
+                        <div class="text-muted" style="font-size:0.85rem;">
+                            <?php if (!empty($da['delivery_agent_name'])): ?>
+                                Agent: <?php echo sanitize($da['delivery_agent_name']); ?>
+                            <?php endif; ?>
+                            <?php if (!empty($da['delivery_updated_at'])): ?>
+                                &middot; <?php echo sanitize(date('d M, H:i', strtotime($da['delivery_updated_at']))); ?>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($ds === 'failed' && !empty($da['failure_reason'])): ?>
+                        <div style="font-size:0.85rem; color:#dc3545; margin-top:0.25rem;">
+                            Reason: <?php echo sanitize($da['failure_reason']); ?>
+                        </div>
                     <?php endif; ?>
                 </div>
-            <?php endif; ?>
+            <?php endforeach; ?>
         </div>
         <?php endif; ?>
     </div>

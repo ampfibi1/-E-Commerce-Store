@@ -72,17 +72,18 @@ function order_get_by_customer($conn, $customer_id) {
 }
 
 function order_get_by_id($conn, $order_id) {
+    // Returns the order row plus zone + customer info. Delivery info is
+    // intentionally NOT joined here because migration 007 made
+    // delivery_assignments per-seller: one order can have multiple
+    // assignment rows, so joining here would either pick one arbitrarily
+    // (the previous bug) or duplicate the order row. Use
+    // order_get_delivery_assignments() to fetch all of them.
     $stmt = mysqli_prepare($conn,
         "SELECT o.*, z.zone_name,
-                u.name AS customer_name, u.email AS customer_email, u.phone AS customer_phone,
-                da.status      AS delivery_status,
-                da.updated_at  AS delivery_updated_at,
-                ag.name        AS delivery_agent_name
+                u.name AS customer_name, u.email AS customer_email, u.phone AS customer_phone
          FROM orders o
          JOIN delivery_zones z ON o.zone_id      = z.id
          JOIN users          u ON o.customer_id  = u.id
-         LEFT JOIN delivery_assignments da ON da.order_id = o.id
-         LEFT JOIN delivery_agents      ag ON ag.id       = da.agent_id
          WHERE o.id = ?
          LIMIT 1"
     );
@@ -92,6 +93,36 @@ function order_get_by_id($conn, $order_id) {
     $row    = mysqli_fetch_assoc($result);
     mysqli_stmt_close($stmt);
     return $row;
+}
+
+// Returns all delivery_assignments for an order, one row per seller's
+// shipment. Each row includes the agent and shop names so the customer
+// can see each parcel's courier status independently.
+function order_get_delivery_assignments($conn, $order_id) {
+    $stmt = mysqli_prepare($conn,
+        "SELECT da.id AS assignment_id,
+                da.seller_id,
+                da.status        AS delivery_status,
+                da.updated_at    AS delivery_updated_at,
+                da.failure_reason,
+                ag.name          AS delivery_agent_name,
+                s.shop_name
+         FROM delivery_assignments da
+         LEFT JOIN delivery_agents ag ON ag.id = da.agent_id
+         LEFT JOIN sellers         s  ON s.id  = da.seller_id
+         WHERE da.order_id = ?
+         ORDER BY da.updated_at DESC, da.id DESC"
+    );
+    if (!$stmt) { return array(); }
+    mysqli_stmt_bind_param($stmt, "i", $order_id);
+    mysqli_stmt_execute($stmt);
+    $res  = mysqli_stmt_get_result($stmt);
+    $rows = array();
+    while ($r = mysqli_fetch_assoc($res)) {
+        $rows[] = $r;
+    }
+    mysqli_stmt_close($stmt);
+    return $rows;
 }
 
 function order_get_items($conn, $order_id) {

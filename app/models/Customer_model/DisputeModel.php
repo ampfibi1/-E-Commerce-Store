@@ -42,19 +42,48 @@ function dispute_create($conn, $data) {
     return $ok ? $new_id : false;
 }
 
-function dispute_seller_for_order($conn, $order_id, $customer_id) {
+// Returns the distinct sellers that appear in the given order's items, but
+// only if the order belongs to $customer_id. Used to populate the seller
+// dropdown on the customer dispute form so the customer picks the specific
+// seller they're complaining about (an order with multiple sellers must
+// not silently route the dispute to whichever seller MySQL returns first).
+function dispute_sellers_for_order($conn, $order_id, $customer_id) {
     $stmt = mysqli_prepare($conn,
-        "SELECT oi.seller_id
+        "SELECT DISTINCT oi.seller_id, s.shop_name
          FROM order_items oi
-         JOIN orders o ON o.id = oi.order_id
+         JOIN orders  o ON o.id = oi.order_id
+         JOIN sellers s ON s.id = oi.seller_id
          WHERE oi.order_id = ? AND o.customer_id = ?
-         LIMIT 1"
+         ORDER BY s.shop_name ASC"
     );
-    if (!$stmt) { return 0; }
+    if (!$stmt) { return array(); }
     mysqli_stmt_bind_param($stmt, "ii", $order_id, $customer_id);
     mysqli_stmt_execute($stmt);
-    $res = mysqli_stmt_get_result($stmt);
-    $row = mysqli_fetch_assoc($res);
+    $res  = mysqli_stmt_get_result($stmt);
+    $rows = array();
+    while ($r = mysqli_fetch_assoc($res)) {
+        $rows[] = $r;
+    }
     mysqli_stmt_close($stmt);
-    return $row ? (int)$row['seller_id'] : 0;
+    return $rows;
+}
+
+// Verifies that $seller_id actually appears in $order_id and that the
+// order belongs to $customer_id. Used to reject tampered POSTs where the
+// customer changes the hidden seller_id to one who isn't in the order.
+function dispute_seller_in_order($conn, $order_id, $customer_id, $seller_id) {
+    $stmt = mysqli_prepare($conn,
+        "SELECT 1
+         FROM order_items oi
+         JOIN orders o ON o.id = oi.order_id
+         WHERE oi.order_id = ? AND oi.seller_id = ? AND o.customer_id = ?
+         LIMIT 1"
+    );
+    if (!$stmt) { return false; }
+    mysqli_stmt_bind_param($stmt, "iii", $order_id, $seller_id, $customer_id);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $ok  = (bool)mysqli_fetch_assoc($res);
+    mysqli_stmt_close($stmt);
+    return $ok;
 }
