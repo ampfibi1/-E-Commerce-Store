@@ -1,0 +1,14 @@
+.main_content {
+    margin-left: 250px; 
+    padding: 20px; 
+    background-color: #f4f4f4;
+}
+.sidebar {
+    width: 200px;
+    background-color: #f0f0f0;
+    padding: 20px;
+    height: 100vh;
+    position: fixed;
+}
+table { width: 100%; border-collapse: collapse; background: white; }
+th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
