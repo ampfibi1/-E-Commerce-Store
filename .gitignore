@@ -16,3 +16,10 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Local-only project artifacts (kept on the author's machine, not for the repo)
+ADMIN_PORT_LINE_COUNT.md
+DEFENSE_PLAN.md
+Archive.zip
+admin_role_handoff.zip
+*.docx
