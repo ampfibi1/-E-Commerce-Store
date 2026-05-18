@@ -24,6 +24,7 @@ require_once APP . '/views/layouts/icons.php';
                 <li><a href="<?php echo BASE_URL; ?>?c=auth&a=login" class="nav-link"><?php icon_user(); ?><span>Login</span></a></li>
                 <li><a href="<?php echo BASE_URL; ?>?c=auth&a=register" class="nav-link nav-link-cta"><span>Register</span></a></li>
             <?php elseif ($_SESSION['role'] === 'customer'): ?>
+                <li><a href="<?php echo BASE_URL; ?>?c=customer&a=dashboard" class="nav-link"><?php icon_dashboard(); ?><span>Dashboard</span></a></li>
                 <li><a href="<?php echo BASE_URL; ?>?c=customer&a=products" class="nav-link"><?php icon_search(); ?><span>Browse</span></a></li>
                 <li><a href="<?php echo BASE_URL; ?>?c=customer&a=orders" class="nav-link"><?php icon_box(); ?><span>Orders</span></a></li>
                 <li><a href="<?php echo BASE_URL; ?>?c=customer&a=wishlist" class="nav-link"><?php icon_heart(); ?><span>Wishlist</span></a></li>
