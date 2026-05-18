@@ -2252,111 +2252,83 @@ footer {
 
 /* ============================================================
  * Admin panel styles — migrated from app/views/admin/CSS/*
- * (was: allmainContent.css + announcements.css + categories.css
- *       + dashboard.css + filter.css + sellers.css + settings.css)
- * Folded into public/css/style.css for rule 6 compliance.
+ * ALL rules are scoped under .main_content so they don't
+ * bleed into customer/seller/delivery/auth pages.
  * ============================================================ */
 
-/* --- admin: allmainContent.css --- */
-.main_content {
-    margin-left: 250px; 
-    padding: 20px; 
-    background-color: #f4f4f4;
-}
+/* --- layout --- */
+.admin-body { background-color: #f4f4f4; min-height: 100vh; }
+
 .sidebar {
     width: 200px;
     background-color: #f0f0f0;
     padding: 20px;
     height: 100vh;
     position: fixed;
+    top: 0; left: 0;
 }
-table { width: 100%; border-collapse: collapse; background: white; }
-th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
-/* --- admin: announcements.css --- */
-form { 
-    background: white; 
-    padding: 20px; 
-    margin-bottom: 20px; 
+
+.main_content {
+    margin-left: 220px;
+    padding: 20px;
+    background-color: #f4f4f4;
+    min-height: 100vh;
 }
-input, textarea, button { 
-    padding: 10px; 
-    margin: 5px 0; 
+
+/* --- admin tables --- */
+.main_content table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    margin-bottom: 20px;
 }
-input, textarea { width: 100%; }
-button { 
-    background: #007bff; 
-    color: white; 
-    border: none; 
-    cursor: pointer; 
+.main_content th,
+.main_content td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
 }
-.announcement { 
-    background: white; 
-    padding: 20px; 
-    margin-bottom: 10px; 
-    border-left: 5px solid #007bff; 
+.main_content th { background-color: #f2f2f2; }
+
+/* --- admin forms --- */
+.main_content form {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
 }
-/* --- admin: categories.css --- */
-form { 
-    background: white; 
-    padding: 20px; 
-    margin-bottom: 20px; 
-}
-input, textarea, select { 
-    width: 100%; 
-    padding: 10px; 
-    margin: 5px 0; 
+.main_content input:not([type="hidden"]):not([type="submit"]),
+.main_content textarea,
+.main_content select {
+    padding: 8px 10px;
+    margin: 5px 0;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
-
-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    background: white; 
-    margin-bottom: 20px; 
-}
-
-th, td { 
-    padding: 10px; 
-    border: 1px solid #ddd; 
-    text-align: left; 
-}
-
-/* --- admin: dashboard.css --- */
-.stats { 
-    display: flex; 
-    gap: 20px; 
-}
-.stat {
-    background: white; 
-    padding: 20px; 
-    border-radius: 5px; 
-    flex: 1; 
-    text-align: center; 
-}
-    
-/* --- admin: filter.css --- */
-input, select { padding: 5px; margin-right: 10px; }
-.filters { background: white; padding: 20px; margin-bottom: 20px; }
-table { width: 100%; border-collapse: collapse; }
-th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-th { background-color: #f2f2f2; }
-.btn { width: 100px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-.btn:hover { background-color: #45a049; }
-/* --- admin: sellers.css --- */
-table{
+.main_content input:not([type="hidden"]):not([type="submit"]):not(.narrow),
+.main_content textarea {
     width: 100%;
-    border-collapse: collapse;
-    border: 1px solid black;
 }
 
-th, td{
-    border: 1px solid black;
-    padding: 10px;
+/* --- admin dashboard stat cards --- */
+.main_content .stats { display: flex; gap: 20px; }
+.main_content .stat {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    flex: 1;
+    text-align: center;
 }
-/* --- admin: settings.css --- */
-table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
-        form { display: inline; }
-        input { width: 60px; padding: 5px; }
-        button { padding: 5px 10px; background: #007bff; color: white; border: none; cursor: pointer; }
+
+/* --- admin filter bar --- */
+.main_content .filters { background: white; padding: 20px; margin-bottom: 20px; }
+
+/* --- admin announcement cards --- */
+.main_content .announcement {
+    background: white;
+    padding: 20px;
+    margin-bottom: 10px;
+    border-left: 5px solid #007bff;
+}
+
+/* --- admin settings commission input (narrow override) --- */
+.main_content input[name="commission_rate"] { width: 80px; }
