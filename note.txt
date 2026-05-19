@@ -1,0 +1,5 @@
+initially dashboard show fatal error 
+reason is 
+    in loginController Header(views/dashboard);
+    but dashboard require $data
+        so without call the controller then how retribe data 
